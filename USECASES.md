@@ -108,6 +108,21 @@
 - Source/input selection dropdowns
 - Multi-room grouping interfaces
 
+### 🤖 **Vacuum & Robot Controls**
+**User Needs:**
+- Robot vacuum start/stop/dock controls
+- Cleaning zone selection and mapping
+- Cleaning history and battery status
+- Room-specific cleaning commands
+- Maintenance reminders (empty bin, clean filters)
+
+**Technical Widgets Needed:**
+- Interactive floor plan with zone selection
+- Robot status indicators (cleaning/docked/error)
+- Battery level and cleaning time displays
+- Zone cleaning buttons with map integration
+- Maintenance alert badges
+
 ### 🏃 **Automation & Scenes**
 **User Needs:**
 - Manual automation triggers
@@ -192,11 +207,12 @@
    - Zoom/pan functionality
    - Performance with long time ranges
 
-3. **Interactive Floor Plans** 🔴 *High Complex*
+3. **Interactive Floor Plans** 🔴 *Phase 3+ Feature*
    - SVG/canvas overlays for device positioning
-   - Real-time state updates on visual elements
+   - Real-time state updates on visual elements  
    - Touch/click interaction zones
    - Responsive scaling for different screens
+   - *Note: Significant engineering effort, defer to future phases*
 
 4. **Conditional Visibility** 🟡 *Medium Complex*
    - Expression evaluator for show/hide logic
@@ -279,8 +295,9 @@
 - **Single WebSocket Connection:** Efficient real-time updates from HA
 - **Selective Entity Subscriptions:** Only subscribe to displayed entities
 - **State Persistence:** Layout, configuration, and user preferences
-- **Conflict Resolution:** Handle simultaneous edits across multiple clients
+- **Conflict Resolution:** *(Phase 2+)* Handle simultaneous edits across multiple clients
 - **Data Caching:** Local storage for frequently accessed configuration
+- **Single-User Focus:** Initial implementation assumes single active editor
 
 ### **Integration Architecture** 🔌
 - **Home Assistant WebSocket API:** Primary real-time data source
@@ -292,4 +309,4 @@
 
 *Document compiled by HA Admin 🏠 & HA Dev 🛠️*  
 *Architecture guidance by Zach*  
-*Version 1.1 - March 11, 2026*
+*Version 1.2 - March 11, 2026*
