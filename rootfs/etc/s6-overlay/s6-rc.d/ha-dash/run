@@ -1,0 +1,8 @@
+#!/usr/bin/with-contenv bashio
+
+bashio::log.info "Starting HA Dash..."
+
+INGRESS_PORT=$(bashio::addon.ingress_port)
+
+cd /srv/backend
+exec python3 -m flask run --host=0.0.0.0 --port="${INGRESS_PORT}"
