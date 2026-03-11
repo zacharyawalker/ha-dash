@@ -1,9 +1,49 @@
 import { useState } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
+import { useEntityStore } from '../store/entityStore';
 import { widgetDefinitions } from './widgets/WidgetRegistry';
 import { useHaEntities } from '../hooks/useHaEntities';
 import Icon from '@mdi/react';
-import { mdiPencil, mdiEye, mdiPlus, mdiContentSave } from '@mdi/js';
+import {
+  mdiPencil,
+  mdiEye,
+  mdiPlus,
+  mdiContentSave,
+  mdiCircle,
+} from '@mdi/js';
+
+/** Domain filter per widget type */
+const WIDGET_DOMAINS: Record<string, string | undefined> = {
+  'light-toggle': 'light',
+  'sensor-display': 'sensor',
+};
+
+/** Connection status indicator */
+function ConnectionBadge() {
+  const connectionStatus = useEntityStore((s) => s.connectionStatus);
+  const haConnected = useEntityStore((s) => s.haConnected);
+
+  const color =
+    connectionStatus === 'connected' && haConnected
+      ? '#22c55e'
+      : connectionStatus === 'connecting'
+        ? '#eab308'
+        : '#ef4444';
+
+  const label =
+    connectionStatus === 'connected' && haConnected
+      ? 'Connected'
+      : connectionStatus === 'connecting'
+        ? 'Connecting...'
+        : 'Disconnected';
+
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-gray-400" title={label}>
+      <Icon path={mdiCircle} size={0.35} color={color} />
+      <span className="hidden sm:inline">{label}</span>
+    </div>
+  );
+}
 
 export default function Toolbar() {
   const { mode, setMode, addWidget, save, dashboard } = useDashboardStore();
@@ -11,7 +51,10 @@ export default function Toolbar() {
   const [addStep, setAddStep] = useState<'type' | 'entity' | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const { entities } = useHaEntities();
+
+  // Get entities from shared store (no polling)
+  const domain = selectedType ? WIDGET_DOMAINS[selectedType] : undefined;
+  const { entities } = useHaEntities(domain);
 
   const handleAddWidget = (entityId: string, friendlyName?: string) => {
     const def = widgetDefinitions.find((d) => d.type === selectedType);
@@ -38,22 +81,20 @@ export default function Toolbar() {
   };
 
   const filteredEntities = entities.filter((e) => {
-    if (selectedType === 'light-toggle' && !e.entity_id.startsWith('light.')) return false;
-    if (selectedType === 'sensor-display' && !e.entity_id.startsWith('sensor.')) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      const name = (e.attributes.friendly_name as string || '').toLowerCase();
-      return name.includes(q) || e.entity_id.toLowerCase().includes(q);
-    }
-    return true;
+    if (!search) return true;
+    const q = search.toLowerCase();
+    const name = (e.attributes.friendly_name as string || '').toLowerCase();
+    return name.includes(q) || e.entity_id.toLowerCase().includes(q);
   });
 
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-neutral-800">
-      <div className="flex items-center gap-2">
-        <h1 className="text-lg font-semibold text-white mr-4">
+      <div className="flex items-center gap-3">
+        <h1 className="text-lg font-semibold text-white mr-2">
           {dashboard?.name || 'HA Dash'}
         </h1>
+
+        <ConnectionBadge />
 
         {mode === 'edit' && (
           <>
@@ -120,9 +161,7 @@ export default function Toolbar() {
             </div>
 
             <button
-              onClick={() => {
-                save();
-              }}
+              onClick={() => save()}
               className="flex items-center gap-1 px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors"
             >
               <Icon path={mdiContentSave} size={0.7} />

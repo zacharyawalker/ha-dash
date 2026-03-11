@@ -1,37 +1,43 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getStates, type HaState } from '../api/client';
+import { useMemo } from 'react';
+import { useEntityStore } from '../store/entityStore';
+import type { HaState } from '../api/client';
 
-export function useHaEntities(domain?: string, pollInterval = 5000) {
-  const [entities, setEntities] = useState<HaState[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+/**
+ * Get all entities, optionally filtered by domain.
+ * Reads from the shared WebSocket-backed entity store.
+ */
+export function useHaEntities(domain?: string) {
+  const entities = useEntityStore((s) => s.entities);
+  const initialized = useEntityStore((s) => s.initialized);
 
-  const fetchEntities = useCallback(async () => {
-    try {
-      const states = await getStates();
-      const filtered = domain
-        ? states.filter((s) => s.entity_id.startsWith(`${domain}.`))
-        : states;
-      setEntities(filtered);
-      setError(null);
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setLoading(false);
-    }
-  }, [domain]);
+  const filtered = useMemo(() => {
+    const all = Object.values(entities);
+    if (!domain) return all;
+    return all.filter((e) => e.entity_id.startsWith(`${domain}.`));
+  }, [entities, domain]);
 
-  useEffect(() => {
-    fetchEntities();
-    const interval = setInterval(fetchEntities, pollInterval);
-    return () => clearInterval(interval);
-  }, [fetchEntities, pollInterval]);
-
-  return { entities, loading, error, refetch: fetchEntities };
+  return {
+    entities: filtered,
+    loading: !initialized,
+    error: null,
+  };
 }
 
-export function useHaEntity(entityId: string | undefined, pollInterval = 5000) {
-  const { entities, loading, error, refetch } = useHaEntities(undefined, pollInterval);
-  const entity = entityId ? entities.find((e) => e.entity_id === entityId) : undefined;
-  return { entity, loading, error, refetch };
+/**
+ * Get a single entity by ID.
+ * Reads from the shared WebSocket-backed entity store.
+ */
+export function useHaEntity(entityId: string | undefined): {
+  entity: HaState | undefined;
+  loading: boolean;
+} {
+  const entity = useEntityStore((s) =>
+    entityId ? s.entities[entityId] : undefined
+  );
+  const initialized = useEntityStore((s) => s.initialized);
+
+  return {
+    entity,
+    loading: !initialized,
+  };
 }

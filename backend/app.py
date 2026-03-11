@@ -1,9 +1,17 @@
 """HA Dash - Flask backend serving the React frontend and proxying HA API calls."""
 
 import os
+import logging
 from flask import Flask, send_from_directory, request
 from api.ha_proxy import ha_proxy_bp
 from api.dashboards import dashboards_bp
+from api.ws_relay import init_websocket
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+)
 
 FRONTEND_DIR = os.environ.get("FRONTEND_DIR", "/srv/frontend/dist")
 
@@ -11,6 +19,9 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 
 app.register_blueprint(ha_proxy_bp, url_prefix="/api/ha")
 app.register_blueprint(dashboards_bp, url_prefix="/api/dashboards")
+
+# Initialize WebSocket relay
+sock = init_websocket(app)
 
 
 @app.before_request
