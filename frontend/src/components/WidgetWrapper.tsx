@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { Rnd } from 'react-rnd';
 import { motion } from 'framer-motion';
 import type { Widget } from '../types/dashboard';
@@ -18,41 +19,47 @@ export default function WidgetWrapper({ widget, mode }: Props) {
 
   const isSelected = selectedWidgetId === widget.id;
 
+  // Stop mousedown from reaching the Canvas (which would deselect)
+  // but DON'T stop it from reaching React-Rnd (which needs it for dragging)
+  const handleWrapperMouseDown = useCallback(() => {
+    selectWidget(widget.id);
+  }, [selectWidget, widget.id]);
+
   if (mode === 'edit') {
     return (
-      <Rnd
-        position={{ x: widget.x, y: widget.y }}
-        size={{ width: widget.width, height: widget.height }}
-        onDragStart={() => {
-          selectWidget(widget.id);
-        }}
-        onDragStop={(_e, d) => {
-          updateWidget(widget.id, { x: d.x, y: d.y });
-        }}
-        onResizeStop={(_e, _dir, ref, _delta, position) => {
-          updateWidget(widget.id, {
-            width: parseInt(ref.style.width),
-            height: parseInt(ref.style.height),
-            x: position.x,
-            y: position.y,
-          });
-        }}
-        bounds="parent"
-        minWidth={80}
-        minHeight={80}
-        style={{
-          outline: isSelected ? '2px solid #4a9eff' : '1px dashed rgba(255,255,255,0.2)',
-          borderRadius: '12px',
-          overflow: 'visible',
-          zIndex: isSelected ? 10 : 1,
+      <div
+        onMouseDownCapture={(e) => {
+          // Stop the Canvas from receiving this event (prevents deselect)
+          // Using capture phase so React-Rnd still gets the bubble phase for dragging
+          e.stopPropagation();
+          handleWrapperMouseDown();
         }}
       >
-        {/* Inner click target — captures clicks that React-Rnd passes through */}
-        <div
-          className="w-full h-full relative"
-          onMouseDown={(e) => {
-            e.stopPropagation();
+        <Rnd
+          position={{ x: widget.x, y: widget.y }}
+          size={{ width: widget.width, height: widget.height }}
+          onDragStart={() => {
             selectWidget(widget.id);
+          }}
+          onDragStop={(_e, d) => {
+            updateWidget(widget.id, { x: d.x, y: d.y });
+          }}
+          onResizeStop={(_e, _dir, ref, _delta, position) => {
+            updateWidget(widget.id, {
+              width: parseInt(ref.style.width),
+              height: parseInt(ref.style.height),
+              x: position.x,
+              y: position.y,
+            });
+          }}
+          bounds="parent"
+          minWidth={80}
+          minHeight={80}
+          style={{
+            outline: isSelected ? '2px solid #4a9eff' : '1px dashed rgba(255,255,255,0.2)',
+            borderRadius: '12px',
+            overflow: 'visible',
+            zIndex: isSelected ? 10 : 1,
           }}
         >
           <motion.div
@@ -63,8 +70,8 @@ export default function WidgetWrapper({ widget, mode }: Props) {
           >
             <WidgetComponent config={widget.config} mode={mode} />
           </motion.div>
-        </div>
-      </Rnd>
+        </Rnd>
+      </div>
     );
   }
 

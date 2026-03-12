@@ -2,7 +2,7 @@
   "createdAt": "2026-03-12T00:00:00Z",
   "id": "default",
   "name": "My Dashboard",
-  "updatedAt": "2026-03-12T13:25:58.581767+00:00",
+  "updatedAt": "2026-03-12T19:50:00.785120+00:00",
   "widgets": [
     {
       "config": {
@@ -15,18 +15,6 @@
       "width": 140,
       "x": 50,
       "y": 50
-    },
-    {
-      "config": {
-        "entityId": "climate.thermostat_hallway",
-        "label": "Hallway Thermostat"
-      },
-      "height": 320,
-      "id": "test-climate-1",
-      "type": "climate-card",
-      "width": 260,
-      "x": 477,
-      "y": 180
     }
   ]
 }
