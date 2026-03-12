@@ -8,7 +8,7 @@ export default function Canvas() {
     <div
       className="relative w-full flex-1 overflow-hidden"
       style={{ background: '#1c1c1c' }}
-      onClick={() => selectWidget(null)}
+      onMouseDown={() => selectWidget(null)}
     >
       {dashboard?.widgets.map((widget) => (
         <WidgetWrapper key={widget.id} widget={widget} mode={mode} />
