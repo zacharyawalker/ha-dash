@@ -3,8 +3,6 @@ import { motion } from 'framer-motion';
 import type { Widget } from '../types/dashboard';
 import { widgetComponents } from './widgets/WidgetRegistry';
 import { useDashboardStore } from '../store/dashboardStore';
-import Icon from '@mdi/react';
-import { mdiClose } from '@mdi/js';
 
 interface Props {
   widget: Widget;
@@ -12,7 +10,7 @@ interface Props {
 }
 
 export default function WidgetWrapper({ widget, mode }: Props) {
-  const { updateWidget, removeWidget, selectedWidgetId, selectWidget } =
+  const { updateWidget, selectedWidgetId, selectWidget } =
     useDashboardStore();
 
   const WidgetComponent = widgetComponents[widget.type];
@@ -57,17 +55,6 @@ export default function WidgetWrapper({ widget, mode }: Props) {
             selectWidget(widget.id);
           }}
         >
-          {isSelected && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                removeWidget(widget.id);
-              }}
-              className="absolute -top-2 -right-2 z-10 w-6 h-6 rounded-full bg-red-500 flex items-center justify-center hover:bg-red-400 transition-colors"
-            >
-              <Icon path={mdiClose} size={0.5} color="white" />
-            </button>
-          )}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}

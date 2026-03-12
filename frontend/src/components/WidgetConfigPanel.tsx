@@ -3,7 +3,7 @@ import { useDashboardStore } from '../store/dashboardStore';
 import { getWidgetDefinition } from './widgets/WidgetRegistry';
 import EntityPicker from './EntityPicker';
 import Icon from '@mdi/react';
-import { mdiClose, mdiDelete, mdiContentSave } from '@mdi/js';
+import { mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline } from '@mdi/js';
 import type { WidgetConfig } from '../types/dashboard';
 import type { ConfigField } from '../types/widget';
 
@@ -134,12 +134,14 @@ export default function WidgetConfigPanel() {
   // Local config state for editing
   const [localConfig, setLocalConfig] = useState<WidgetConfig>({});
   const [isDirty, setIsDirty] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Sync local state when selected widget changes
   useEffect(() => {
     if (widget) {
       setLocalConfig({ ...widget.config });
       setIsDirty(false);
+      setShowDeleteConfirm(false);
     }
   }, [widget?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -156,6 +158,10 @@ export default function WidgetConfigPanel() {
   };
 
   const handleDelete = () => {
+    if (!showDeleteConfirm) {
+      setShowDeleteConfirm(true);
+      return;
+    }
     removeWidget(widget.id);
     selectWidget(null);
   };
@@ -225,25 +231,50 @@ export default function WidgetConfigPanel() {
       </div>
 
       {/* Footer actions */}
-      <div className="px-4 py-3 border-t border-neutral-800 flex items-center gap-2">
-        <button
-          onClick={handleSave}
-          disabled={!isDirty}
-          className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors ${
-            isDirty
-              ? 'bg-blue-600 hover:bg-blue-500 text-white'
-              : 'bg-neutral-700 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          <Icon path={mdiContentSave} size={0.7} />
-          Apply
-        </button>
-        <button
-          onClick={handleDelete}
-          className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg transition-colors"
-        >
-          <Icon path={mdiDelete} size={0.7} />
-        </button>
+      <div className="px-4 py-3 border-t border-neutral-800">
+        {showDeleteConfirm ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm text-red-400">
+              <Icon path={mdiAlertCircleOutline} size={0.7} />
+              <span>Delete this widget?</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDelete}
+                className="flex-1 px-3 py-2 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-3 py-2 text-sm bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSave}
+              disabled={!isDirty}
+              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors ${
+                isDirty
+                  ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                  : 'bg-neutral-700 text-gray-500 cursor-not-allowed'
+              }`}
+            >
+              <Icon path={mdiContentSave} size={0.7} />
+              Apply
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg transition-colors"
+            >
+              <Icon path={mdiDelete} size={0.7} />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
