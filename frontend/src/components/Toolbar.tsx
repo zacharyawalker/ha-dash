@@ -11,6 +11,7 @@ import {
   mdiContentSave,
   mdiCircle,
 } from '@mdi/js';
+import { generateId } from '../utils/id';
 
 /** Domain filter per widget type */
 const WIDGET_DOMAINS: Record<string, string | undefined> = {
@@ -63,7 +64,7 @@ export default function Toolbar() {
     if (!def) return;
 
     const widget = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       type: def.type,
       x: 50 + Math.random() * 200,
       y: 50 + Math.random() * 200,
