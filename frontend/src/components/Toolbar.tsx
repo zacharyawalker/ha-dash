@@ -16,6 +16,8 @@ import {
 const WIDGET_DOMAINS: Record<string, string | undefined> = {
   'light-toggle': 'light',
   'sensor-display': 'sensor',
+  'climate-card': 'climate',
+  'scene-button': 'scene',
 };
 
 /** Connection status indicator */
