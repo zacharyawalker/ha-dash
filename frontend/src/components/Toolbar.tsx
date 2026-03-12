@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
 import { useEntityStore } from '../store/entityStore';
-import { widgetDefinitions } from './widgets/WidgetRegistry';
+import { widgetDefinitions, WIDGET_DOMAINS } from './widgets/WidgetRegistry';
 import { useHaEntities } from '../hooks/useHaEntities';
 import Icon from '@mdi/react';
 import {
@@ -12,14 +12,6 @@ import {
   mdiCircle,
 } from '@mdi/js';
 import { generateId } from '../utils/id';
-
-/** Domain filter per widget type */
-const WIDGET_DOMAINS: Record<string, string | undefined> = {
-  'light-toggle': 'light',
-  'sensor-display': 'sensor',
-  'climate-card': 'climate',
-  'scene-button': 'scene',
-};
 
 /** Connection status indicator */
 function ConnectionBadge() {
@@ -58,7 +50,13 @@ export default function Toolbar() {
   const domain = selectedType ? WIDGET_DOMAINS[selectedType] : undefined;
   const { entities } = useHaEntities(domain);
 
-  const handleAddWidget = (entityId: string, friendlyName?: string) => {
+  /** Check if a widget type requires an entity */
+  const needsEntity = (type: string): boolean => {
+    const def = widgetDefinitions.find((d) => d.type === type);
+    return def?.configFields.some((f) => f.key === 'entityId') ?? false;
+  };
+
+  const handleAddWidget = (entityId?: string, friendlyName?: string) => {
     const def = widgetDefinitions.find((d) => d.type === selectedType);
     if (!def) return;
 
@@ -71,8 +69,7 @@ export default function Toolbar() {
       height: def.defaultHeight,
       config: {
         ...def.defaultConfig,
-        entityId,
-        label: friendlyName || '',
+        ...(entityId ? { entityId, label: friendlyName || '' } : {}),
       },
     };
     addWidget(widget);
@@ -129,6 +126,26 @@ export default function Toolbar() {
                       <button
                         key={def.type}
                         onClick={() => {
+                          if (!needsEntity(def.type)) {
+                            setSelectedType(def.type);
+                            // Directly add — no entity selection needed
+                            setTimeout(() => {
+                              const widget = {
+                                id: generateId(),
+                                type: def.type,
+                                x: 50 + Math.random() * 200,
+                                y: 50 + Math.random() * 200,
+                                width: def.defaultWidth,
+                                height: def.defaultHeight,
+                                config: { ...def.defaultConfig },
+                              };
+                              addWidget(widget);
+                              setShowAddMenu(false);
+                              setAddStep(null);
+                              setSelectedType(null);
+                            }, 0);
+                            return;
+                          }
                           setSelectedType(def.type);
                           setAddStep('entity');
                         }}

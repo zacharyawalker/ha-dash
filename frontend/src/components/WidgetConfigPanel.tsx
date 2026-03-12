@@ -37,7 +37,7 @@ function ConfigFieldInput({
         <EntityPicker
           value={(value as string) || ''}
           onChange={(v) => onChange(v)}
-          domain={field.domain}
+          domain={field.domains || field.domain}
           placeholder={field.placeholder || `Select ${field.domain || 'entity'}...`}
         />
       );

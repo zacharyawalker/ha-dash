@@ -6,7 +6,7 @@ import { mdiMagnify, mdiClose } from '@mdi/js';
 interface EntityPickerProps {
   value: string;
   onChange: (entityId: string) => void;
-  domain?: string;
+  domain?: string | string[];
   placeholder?: string;
 }
 

@@ -3,16 +3,19 @@ import { useEntityStore } from '../store/entityStore';
 import type { HaState } from '../api/client';
 
 /**
- * Get all entities, optionally filtered by domain.
+ * Get all entities, optionally filtered by domain(s).
  * Reads from the shared WebSocket-backed entity store.
  */
-export function useHaEntities(domain?: string) {
+export function useHaEntities(domain?: string | string[]) {
   const entities = useEntityStore((s) => s.entities);
   const initialized = useEntityStore((s) => s.initialized);
 
   const filtered = useMemo(() => {
     const all = Object.values(entities);
     if (!domain) return all;
+    if (Array.isArray(domain)) {
+      return all.filter((e) => domain.some((d) => e.entity_id.startsWith(`${d}.`)));
+    }
     return all.filter((e) => e.entity_id.startsWith(`${domain}.`));
   }, [entities, domain]);
 
@@ -25,7 +28,6 @@ export function useHaEntities(domain?: string) {
 
 /**
  * Get a single entity by ID.
- * Reads from the shared WebSocket-backed entity store.
  */
 export function useHaEntity(entityId: string | undefined): {
   entity: HaState | undefined;
