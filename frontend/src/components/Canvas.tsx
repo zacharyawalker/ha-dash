@@ -8,7 +8,10 @@ export default function Canvas() {
     <div
       className="relative w-full flex-1 overflow-hidden"
       style={{ background: '#1c1c1c' }}
-      onMouseDown={() => selectWidget(null)}
+      onMouseDown={(e) => {
+        // Only deselect when clicking the canvas background itself, not a child widget
+        if (e.target === e.currentTarget) selectWidget(null);
+      }}
     >
       {dashboard?.widgets.map((widget) => (
         <WidgetWrapper key={widget.id} widget={widget} mode={mode} />

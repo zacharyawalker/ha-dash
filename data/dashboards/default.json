@@ -2,7 +2,7 @@
   "createdAt": "2026-03-12T00:00:00Z",
   "id": "default",
   "name": "My Dashboard",
-  "updatedAt": "2026-03-12T19:50:00.785120+00:00",
+  "updatedAt": "2026-03-12T19:58:46.500262+00:00",
   "widgets": [
     {
       "config": {
@@ -15,6 +15,18 @@
       "width": 140,
       "x": 50,
       "y": 50
+    },
+    {
+      "id": "d5b68a8bf598b7e8d0f196f3ddde9ba6",
+      "type": "climate-card",
+      "x": 234.73662628217534,
+      "y": 169.5443550786413,
+      "width": 260,
+      "height": 320,
+      "config": {
+        "label": "Thermostat - Hallway",
+        "entityId": "climate.thermostat_hallway"
+      }
     }
   ]
 }
