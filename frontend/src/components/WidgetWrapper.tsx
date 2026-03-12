@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import type { Widget } from '../types/dashboard';
 import { widgetComponents } from './widgets/WidgetRegistry';
 import { useDashboardStore } from '../store/dashboardStore';
+import WidgetErrorBoundary from './WidgetErrorBoundary';
 
 interface Props {
   widget: Widget;
@@ -41,7 +42,7 @@ export default function WidgetWrapper({ widget, mode }: Props) {
         minWidth={80}
         minHeight={80}
         style={{
-          outline: isSelected ? '2px solid #4a9eff' : '1px dashed rgba(255,255,255,0.2)',
+          outline: isSelected ? '2px solid var(--color-accent)' : '1px dashed var(--color-border-secondary)',
           borderRadius: '12px',
           overflow: 'visible',
           zIndex: isSelected ? 10 : 1,
@@ -53,7 +54,9 @@ export default function WidgetWrapper({ widget, mode }: Props) {
           className="w-full h-full"
           style={{ pointerEvents: 'none' }}
         >
-          <WidgetComponent config={widget.config} mode={mode} />
+          <WidgetErrorBoundary widgetId={widget.id}>
+            <WidgetComponent config={widget.config} mode={mode} />
+          </WidgetErrorBoundary>
         </motion.div>
       </Rnd>
     );
@@ -74,7 +77,9 @@ export default function WidgetWrapper({ widget, mode }: Props) {
         animate={{ opacity: 1, scale: 1 }}
         className="w-full h-full"
       >
-        <WidgetComponent config={widget.config} mode={mode} />
+        <WidgetErrorBoundary widgetId={widget.id}>
+          <WidgetComponent config={widget.config} mode={mode} />
+        </WidgetErrorBoundary>
       </motion.div>
     </div>
   );

@@ -16,14 +16,15 @@ export default function SensorDisplay({ config }: WidgetProps) {
 
   return (
     <div
-      className="flex flex-col items-center justify-center w-full h-full rounded-xl"
-      style={{ background: 'rgba(255,255,255,0.05)' }}
+      className="flex flex-col items-center justify-center w-full h-full rounded-card"
+      style={{ background: 'var(--color-surface-secondary)' }}
     >
-      <Icon path={icon} size={1.4} color="#4a9eff" />
-      <span className="mt-2 text-2xl font-bold text-white">
-        {entity?.state ?? '—'}{unit ? <span className="text-sm ml-1 text-gray-400">{unit}</span> : null}
+      <Icon path={icon} size={1.4} color="var(--color-accent)" />
+      <span className="mt-2 font-bold" style={{ fontSize: 'var(--text-widget-value)', color: 'var(--color-text-primary)' }}>
+        {entity?.state ?? '—'}
+        {unit ? <span style={{ fontSize: 'var(--text-widget-unit)', color: 'var(--color-text-secondary)', marginLeft: '4px' }}>{unit}</span> : null}
       </span>
-      <span className="mt-1 text-xs text-gray-400">
+      <span className="mt-1" style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-secondary)' }}>
         {String(config.label || entity?.attributes?.friendly_name || config.entityId || 'Sensor')}
       </span>
     </div>

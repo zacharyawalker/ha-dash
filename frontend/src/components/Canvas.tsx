@@ -7,7 +7,7 @@ export default function Canvas() {
   return (
     <div
       className="relative w-full flex-1 overflow-hidden"
-      style={{ background: '#1c1c1c' }}
+      style={{ background: 'var(--color-surface-page)' }}
       onMouseDown={(e) => {
         // Only deselect when clicking the canvas background itself, not a child widget
         if (e.target === e.currentTarget) selectWidget(null);
@@ -19,7 +19,7 @@ export default function Canvas() {
 
       {dashboard?.widgets.length === 0 && mode === 'edit' && (
         <div className="absolute inset-0 flex items-center justify-center text-gray-500">
-          <p>Click "Add Widget" in the toolbar to get started</p>
+          <p style={{ color: 'var(--color-text-tertiary)' }}>Click "Add Widget" in the toolbar to get started</p>
         </div>
       )}
     </div>

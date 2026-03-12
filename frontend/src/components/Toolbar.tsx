@@ -28,10 +28,10 @@ function ConnectionBadge() {
 
   const color =
     connectionStatus === 'connected' && haConnected
-      ? '#22c55e'
+      ? 'var(--color-success)'
       : connectionStatus === 'connecting'
-        ? '#eab308'
-        : '#ef4444';
+        ? 'var(--color-warning)'
+        : 'var(--color-error)';
 
   const label =
     connectionStatus === 'connected' && haConnected
@@ -41,7 +41,7 @@ function ConnectionBadge() {
         : 'Disconnected';
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-gray-400" title={label}>
+    <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--color-text-secondary)' }} title={label}>
       <Icon path={mdiCircle} size={0.35} color={color} />
       <span className="hidden sm:inline">{label}</span>
     </div>
@@ -55,7 +55,6 @@ export default function Toolbar() {
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  // Get entities from shared store (no polling)
   const domain = selectedType ? WIDGET_DOMAINS[selectedType] : undefined;
   const { entities } = useHaEntities(domain);
 
@@ -91,9 +90,12 @@ export default function Toolbar() {
   });
 
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-neutral-900 border-b border-neutral-800">
+    <div
+      className="flex items-center justify-between px-4 py-2"
+      style={{ background: 'var(--color-surface-primary)', borderBottom: '1px solid var(--color-border-primary)' }}
+    >
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold text-white mr-2">
+        <h1 className="text-lg font-semibold mr-2" style={{ color: 'var(--color-text-primary)' }}>
           {dashboard?.name || 'HA Dash'}
         </h1>
 
@@ -108,14 +110,20 @@ export default function Toolbar() {
                   setAddStep('type');
                   setSearch('');
                 }}
-                className="flex items-center gap-1 px-3 py-1.5 text-sm bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors"
+                style={{ background: 'var(--color-accent)', color: 'white' }}
+                onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+                onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
               >
                 <Icon path={mdiPlus} size={0.7} />
                 Add Widget
               </button>
 
               {showAddMenu && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 z-50 max-h-80 overflow-y-auto">
+                <div
+                  className="absolute top-full left-0 mt-1 w-64 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
+                  style={{ background: 'var(--color-surface-tertiary)', border: '1px solid var(--color-border-secondary)' }}
+                >
                   {addStep === 'type' &&
                     widgetDefinitions.map((def) => (
                       <button
@@ -124,7 +132,10 @@ export default function Toolbar() {
                           setSelectedType(def.type);
                           setAddStep('entity');
                         }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-neutral-700 transition-colors"
+                        className="w-full text-left px-4 py-2 text-sm transition-colors"
+                        style={{ color: 'var(--color-text-primary)' }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-surface-hover)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                       >
                         {def.label}
                       </button>
@@ -132,29 +143,34 @@ export default function Toolbar() {
 
                   {addStep === 'entity' && (
                     <>
-                      <div className="px-3 py-2 border-b border-neutral-700">
+                      <div style={{ padding: '8px 12px', borderBottom: '1px solid var(--color-border-primary)' }}>
                         <input
                           type="text"
                           value={search}
                           onChange={(e) => setSearch(e.target.value)}
                           placeholder="Search entities..."
                           autoFocus
-                          className="w-full px-2 py-1.5 text-sm bg-neutral-700 text-white rounded border border-neutral-600 placeholder-gray-400 outline-none focus:border-blue-500"
+                          className="w-full px-2 py-1.5 text-sm rounded outline-none"
+                          style={{
+                            background: 'var(--color-surface-secondary)',
+                            color: 'var(--color-text-primary)',
+                            border: '1px solid var(--color-border-primary)',
+                          }}
                         />
                       </div>
                       {filteredEntities.map((e) => (
                         <button
                           key={e.entity_id}
                           onClick={() =>
-                            handleAddWidget(
-                              e.entity_id,
-                              e.attributes.friendly_name as string
-                            )
+                            handleAddWidget(e.entity_id, e.attributes.friendly_name as string)
                           }
-                          className="w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-neutral-700 transition-colors"
+                          className="w-full text-left px-4 py-2 text-sm transition-colors"
+                          style={{ color: 'var(--color-text-primary)' }}
+                          onMouseEnter={(ev) => (ev.currentTarget.style.background = 'var(--color-surface-hover)')}
+                          onMouseLeave={(ev) => (ev.currentTarget.style.background = 'transparent')}
                         >
                           <div>{e.attributes.friendly_name as string || e.entity_id}</div>
-                          <div className="text-xs text-gray-500">{e.entity_id}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)' }}>{e.entity_id}</div>
                         </button>
                       ))}
                     </>
@@ -165,7 +181,10 @@ export default function Toolbar() {
 
             <button
               onClick={() => save()}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-green-600 hover:bg-green-500 text-white rounded-lg transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors"
+              style={{ background: 'var(--color-success)', color: 'white' }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.85')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
             >
               <Icon path={mdiContentSave} size={0.7} />
               Save
@@ -176,7 +195,10 @@ export default function Toolbar() {
 
       <button
         onClick={() => setMode(mode === 'edit' ? 'view' : 'edit')}
-        className="flex items-center gap-1 px-3 py-1.5 text-sm bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg transition-colors"
+        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors"
+        style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-primary)' }}
+        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-surface-hover)')}
+        onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--color-surface-tertiary)')}
       >
         <Icon path={mode === 'edit' ? mdiEye : mdiPencil} size={0.7} />
         {mode === 'edit' ? 'View' : 'Edit'}

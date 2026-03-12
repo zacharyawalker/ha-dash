@@ -7,9 +7,20 @@ import { mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline } from '@mdi
 import type { WidgetConfig } from '../types/dashboard';
 import type { ConfigField } from '../types/widget';
 
+/** Shared input styles using theme tokens */
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '8px 12px',
+  fontSize: '0.875rem',
+  background: 'var(--color-surface-tertiary)',
+  color: 'var(--color-text-primary)',
+  borderRadius: 'var(--radius-sm)',
+  border: '1px solid var(--color-border-primary)',
+  outline: 'none',
+};
+
 /**
  * Dynamic config field renderer.
- * Renders the appropriate input component based on field type.
  */
 function ConfigFieldInput({
   field,
@@ -42,10 +53,10 @@ function ConfigFieldInput({
             max={field.max}
             step={field.step}
             placeholder={field.placeholder}
-            className="w-full px-3 py-2 text-sm bg-neutral-700 text-white rounded-lg border border-neutral-600 placeholder-gray-400 outline-none focus:border-blue-500 transition-colors"
+            style={inputStyle}
           />
           {field.unit && (
-            <span className="text-xs text-gray-500 shrink-0">{field.unit}</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--color-text-tertiary)', flexShrink: 0 }}>{field.unit}</span>
           )}
         </div>
       );
@@ -55,13 +66,13 @@ function ConfigFieldInput({
         <select
           value={(value as string) || ''}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-3 py-2 text-sm bg-neutral-700 text-white rounded-lg border border-neutral-600 outline-none focus:border-blue-500 transition-colors cursor-pointer"
+          style={{ ...inputStyle, cursor: 'pointer' }}
         >
-          <option value="" className="bg-neutral-800">
+          <option value="" style={{ background: 'var(--color-surface-primary)' }}>
             {field.placeholder || 'Select...'}
           </option>
           {field.options.map((opt) => (
-            <option key={opt.value} value={opt.value} className="bg-neutral-800">
+            <option key={opt.value} value={opt.value} style={{ background: 'var(--color-surface-primary)' }}>
               {opt.label}
             </option>
           ))}
@@ -73,14 +84,15 @@ function ConfigFieldInput({
         <button
           type="button"
           onClick={() => onChange(!value)}
-          className={`relative w-10 h-5 rounded-full transition-colors ${
-            value ? 'bg-blue-600' : 'bg-neutral-600'
-          }`}
+          className="relative w-10 h-5 rounded-full transition-colors"
+          style={{ background: value ? 'var(--color-accent)' : 'var(--color-surface-tertiary)' }}
         >
           <div
-            className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
-              value ? 'translate-x-5' : 'translate-x-0.5'
-            }`}
+            className="absolute top-0.5 w-4 h-4 rounded-full transition-transform"
+            style={{
+              background: 'white',
+              transform: value ? 'translateX(20px)' : 'translateX(2px)',
+            }}
           />
         </button>
       );
@@ -92,14 +104,15 @@ function ConfigFieldInput({
             type="color"
             value={(value as string) || '#ffffff'}
             onChange={(e) => onChange(e.target.value)}
-            className="w-8 h-8 rounded border border-neutral-600 cursor-pointer bg-transparent"
+            className="w-8 h-8 rounded cursor-pointer"
+            style={{ border: '1px solid var(--color-border-primary)', background: 'transparent' }}
           />
           <input
             type="text"
             value={(value as string) || ''}
             onChange={(e) => onChange(e.target.value)}
             placeholder="#ffffff"
-            className="flex-1 px-3 py-2 text-sm bg-neutral-700 text-white rounded-lg border border-neutral-600 placeholder-gray-400 outline-none focus:border-blue-500 transition-colors font-mono"
+            style={{ ...inputStyle, fontFamily: 'monospace' }}
           />
         </div>
       );
@@ -112,7 +125,7 @@ function ConfigFieldInput({
           value={(value as string) || ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder={field.placeholder}
-          className="w-full px-3 py-2 text-sm bg-neutral-700 text-white rounded-lg border border-neutral-600 placeholder-gray-400 outline-none focus:border-blue-500 transition-colors"
+          style={inputStyle}
         />
       );
   }
@@ -121,7 +134,6 @@ function ConfigFieldInput({
 /**
  * Widget configuration panel.
  * Renders config fields dynamically based on the widget definition.
- * Adding a new widget type with configFields = automatically gets a config UI.
  */
 export default function WidgetConfigPanel() {
   const { dashboard, selectedWidgetId, selectWidget, updateWidget, removeWidget } =
@@ -131,12 +143,10 @@ export default function WidgetConfigPanel() {
   const widgetDef = widget ? getWidgetDefinition(widget.type) : undefined;
   const configFields = widgetDef?.configFields ?? [];
 
-  // Local config state for editing
   const [localConfig, setLocalConfig] = useState<WidgetConfig>({});
   const [isDirty, setIsDirty] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Sync local state when selected widget changes
   useEffect(() => {
     if (widget) {
       setLocalConfig({ ...widget.config });
@@ -166,7 +176,6 @@ export default function WidgetConfigPanel() {
     selectWidget(null);
   };
 
-  /** Check if a field should be visible based on showWhen condition */
   const isFieldVisible = (field: ConfigField): boolean => {
     if (!field.showWhen) return true;
     const { field: depField, value: depValue, notEmpty } = field.showWhen;
@@ -176,33 +185,37 @@ export default function WidgetConfigPanel() {
   };
 
   return (
-    <div className="w-72 bg-neutral-900 border-l border-neutral-800 flex flex-col h-full overflow-hidden">
+    <div
+      className="w-72 flex flex-col h-full overflow-hidden"
+      style={{ background: 'var(--color-surface-primary)', borderLeft: '1px solid var(--color-border-primary)' }}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800">
+      <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
         <div>
-          <h2 className="text-sm font-semibold text-white">
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>
             {widgetDef.label}
           </h2>
           {widgetDef.category && (
-            <span className="text-xs text-gray-500 capitalize">{widgetDef.category}</span>
+            <span className="text-xs capitalize" style={{ color: 'var(--color-text-tertiary)' }}>{widgetDef.category}</span>
           )}
         </div>
         <button
           onClick={() => selectWidget(null)}
-          className="text-gray-400 hover:text-white transition-colors"
+          style={{ color: 'var(--color-text-secondary)' }}
+          className="hover:opacity-80 transition-opacity"
         >
           <Icon path={mdiClose} size={0.8} />
         </button>
       </div>
 
-      {/* Config fields — rendered dynamically from widget definition */}
+      {/* Config fields */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
         {configFields.filter(isFieldVisible).map((field) => (
           <div key={field.key}>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-medium text-gray-400">
+              <label className="block text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>
                 {field.label}
-                {field.required && <span className="text-red-400 ml-0.5">*</span>}
+                {field.required && <span style={{ color: 'var(--color-error)', marginLeft: '2px' }}>*</span>}
               </label>
             </div>
             <ConfigFieldInput
@@ -211,17 +224,17 @@ export default function WidgetConfigPanel() {
               onChange={(v) => handleChange(field.key, v)}
             />
             {field.helpText && (
-              <p className="mt-1 text-xs text-gray-600">{field.helpText}</p>
+              <p className="mt-1 text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{field.helpText}</p>
             )}
           </div>
         ))}
 
-        {/* Position & size (always shown) */}
-        <div className="pt-2 border-t border-neutral-800">
-          <label className="block text-xs font-medium text-gray-400 mb-1.5">
+        {/* Position & size */}
+        <div className="pt-2" style={{ borderTop: '1px solid var(--color-border-primary)' }}>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
             Position & Size
           </label>
-          <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+          <div className="grid grid-cols-2 gap-2 text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
             <div>X: {Math.round(widget.x)}</div>
             <div>Y: {Math.round(widget.y)}</div>
             <div>W: {widget.width}</div>
@@ -230,24 +243,26 @@ export default function WidgetConfigPanel() {
         </div>
       </div>
 
-      {/* Footer actions */}
-      <div className="px-4 py-3 border-t border-neutral-800">
+      {/* Footer */}
+      <div className="px-4 py-3" style={{ borderTop: '1px solid var(--color-border-primary)' }}>
         {showDeleteConfirm ? (
           <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm text-red-400">
+            <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--color-error)' }}>
               <Icon path={mdiAlertCircleOutline} size={0.7} />
               <span>Delete this widget?</span>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleDelete}
-                className="flex-1 px-3 py-2 text-sm bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors"
+                className="flex-1 px-3 py-2 text-sm rounded-lg transition-colors"
+                style={{ background: 'var(--color-error)', color: 'white' }}
               >
                 Delete
               </button>
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-3 py-2 text-sm bg-neutral-700 hover:bg-neutral-600 text-white rounded-lg transition-colors"
+                className="flex-1 px-3 py-2 text-sm rounded-lg transition-colors"
+                style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-primary)' }}
               >
                 Cancel
               </button>
@@ -258,18 +273,20 @@ export default function WidgetConfigPanel() {
             <button
               onClick={handleSave}
               disabled={!isDirty}
-              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors ${
-                isDirty
-                  ? 'bg-blue-600 hover:bg-blue-500 text-white'
-                  : 'bg-neutral-700 text-gray-500 cursor-not-allowed'
-              }`}
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors"
+              style={{
+                background: isDirty ? 'var(--color-accent)' : 'var(--color-surface-tertiary)',
+                color: isDirty ? 'white' : 'var(--color-text-disabled)',
+                cursor: isDirty ? 'pointer' : 'not-allowed',
+              }}
             >
               <Icon path={mdiContentSave} size={0.7} />
               Apply
             </button>
             <button
               onClick={handleDelete}
-              className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm bg-red-600/20 hover:bg-red-600/40 text-red-400 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors"
+              style={{ background: 'var(--color-error-muted)', color: 'var(--color-error)' }}
             >
               <Icon path={mdiDelete} size={0.7} />
             </button>

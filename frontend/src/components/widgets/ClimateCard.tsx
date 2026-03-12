@@ -16,16 +16,26 @@ import type { WidgetProps } from '../../types/widget';
 
 /** HVAC mode colors and icons */
 const MODE_CONFIG: Record<string, { icon: string; color: string; label: string }> = {
-  heat: { icon: mdiFire, color: '#ef4444', label: 'Heat' },
-  cool: { icon: mdiSnowflake, color: '#3b82f6', label: 'Cool' },
-  heat_cool: { icon: mdiThermometer, color: '#f59e0b', label: 'Auto' },
-  auto: { icon: mdiThermometer, color: '#f59e0b', label: 'Auto' },
-  dry: { icon: mdiWaterPercent, color: '#8b5cf6', label: 'Dry' },
-  fan_only: { icon: mdiFan, color: '#22c55e', label: 'Fan' },
-  off: { icon: mdiPowerStandby, color: '#6b7280', label: 'Off' },
+  heat: { icon: mdiFire, color: 'var(--color-hvac-heat)', label: 'Heat' },
+  cool: { icon: mdiSnowflake, color: 'var(--color-hvac-cool)', label: 'Cool' },
+  heat_cool: { icon: mdiThermometer, color: 'var(--color-hvac-auto)', label: 'Auto' },
+  auto: { icon: mdiThermometer, color: 'var(--color-hvac-auto)', label: 'Auto' },
+  dry: { icon: mdiWaterPercent, color: 'var(--color-info)', label: 'Dry' },
+  fan_only: { icon: mdiFan, color: 'var(--color-success)', label: 'Fan' },
+  off: { icon: mdiPowerStandby, color: 'var(--color-hvac-off)', label: 'Off' },
 };
 
-/** Hvac action indicators */
+/** Raw hex for dynamic CSS (gradients need real values, not var()) */
+const MODE_HEX: Record<string, string> = {
+  heat: '#ef4444',
+  cool: '#4a9eff',
+  heat_cool: '#f59e0b',
+  auto: '#f59e0b',
+  dry: '#8b5cf6',
+  fan_only: '#22c55e',
+  off: '#6b6b6b',
+};
+
 const ACTION_LABELS: Record<string, string> = {
   heating: '🔥 Heating',
   cooling: '❄️ Cooling',
@@ -43,7 +53,10 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
 
   if (!entity) {
     return (
-      <div className="flex items-center justify-center w-full h-full rounded-xl bg-white/5 text-gray-500 text-sm">
+      <div
+        className="flex items-center justify-center w-full h-full rounded-card"
+        style={{ background: 'var(--color-surface-secondary)', color: 'var(--color-text-tertiary)', fontSize: 'var(--text-widget-title)' }}
+      >
         {config.entityId ? 'Loading...' : 'No entity'}
       </div>
     );
@@ -58,7 +71,6 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
   const hvacAction = attrs.hvac_action as string | undefined;
   const fanMode = attrs.fan_mode as string | undefined;
 
-  // Dual setpoint (heat_cool) vs single setpoint
   const isDualSetpoint = hvacMode === 'heat_cool' || hvacMode === 'auto';
   const targetTemp = pendingTemp ?? (attrs.temperature as number | null);
   const targetHigh = pendingHigh ?? (attrs.target_temp_high as number | null);
@@ -67,14 +79,12 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
   const maxTemp = (attrs.max_temp as number) || 90;
 
   const modeConfig = MODE_CONFIG[hvacMode] || MODE_CONFIG.off;
+  const modeHex = MODE_HEX[hvacMode] || MODE_HEX.off;
 
   const setTemperature = async (data: Record<string, unknown>) => {
     if (widgetMode === 'edit' || !config.entityId) return;
     try {
-      await callService('climate', 'set_temperature', {
-        entity_id: config.entityId,
-        ...data,
-      });
+      await callService('climate', 'set_temperature', { entity_id: config.entityId, ...data });
     } catch (e) {
       console.error('[ClimateCard] Failed to set temperature:', e);
     }
@@ -83,10 +93,7 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
   const setHvacMode = async (newMode: string) => {
     if (widgetMode === 'edit' || !config.entityId) return;
     try {
-      await callService('climate', 'set_hvac_mode', {
-        entity_id: config.entityId,
-        hvac_mode: newMode,
-      });
+      await callService('climate', 'set_hvac_mode', { entity_id: config.entityId, hvac_mode: newMode });
     } catch (e) {
       console.error('[ClimateCard] Failed to set HVAC mode:', e);
     }
@@ -95,10 +102,7 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
   const setFanMode = async (newFan: string) => {
     if (widgetMode === 'edit' || !config.entityId) return;
     try {
-      await callService('climate', 'set_fan_mode', {
-        entity_id: config.entityId,
-        fan_mode: newFan,
-      });
+      await callService('climate', 'set_fan_mode', { entity_id: config.entityId, fan_mode: newFan });
     } catch (e) {
       console.error('[ClimateCard] Failed to set fan mode:', e);
     }
@@ -122,50 +126,49 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
       setPendingLow(next);
       setTemperature({ target_temp_high: targetHigh || 73, target_temp_low: next });
     }
-    // Clear pending after WS update arrives
-    setTimeout(() => {
-      setPendingTemp(null);
-      setPendingHigh(null);
-      setPendingLow(null);
-    }, 3000);
+    setTimeout(() => { setPendingTemp(null); setPendingHigh(null); setPendingLow(null); }, 3000);
   };
 
   const label = String(config.label || attrs.friendly_name || config.entityId || 'Climate');
 
   return (
     <div
-      className="flex flex-col w-full h-full rounded-xl p-3 overflow-hidden"
+      className="flex flex-col w-full h-full rounded-card p-3 overflow-hidden"
       style={{
         background: hvacMode === 'off'
-          ? 'rgba(255,255,255,0.05)'
-          : `linear-gradient(135deg, ${modeConfig.color}15 0%, ${modeConfig.color}08 100%)`,
+          ? 'var(--color-surface-secondary)'
+          : `linear-gradient(135deg, ${modeHex}15 0%, ${modeHex}08 100%)`,
         cursor: widgetMode === 'edit' ? 'grab' : 'default',
-        border: `1px solid ${modeConfig.color}30`,
+        border: `1px solid ${modeHex}30`,
       }}
     >
-      {/* Header: name + current temp */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5 min-w-0">
           <Icon path={modeConfig.icon} size={0.7} color={modeConfig.color} />
-          <span className="text-xs font-medium text-gray-300 truncate">{label}</span>
+          <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-primary)' }} className="font-medium truncate">
+            {label}
+          </span>
         </div>
         {hvacAction && (
-          <span className="text-xs text-gray-500 shrink-0">
+          <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-tertiary)' }} className="shrink-0">
             {ACTION_LABELS[hvacAction] || hvacAction}
           </span>
         )}
       </div>
 
-      {/* Current temperature (large) */}
+      {/* Current temperature */}
       <div className="flex items-center justify-center flex-1">
         <div className="text-center">
-          <div className="text-3xl font-bold text-white">
+          <div className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {currentTemp != null ? `${currentTemp}°` : '—'}
           </div>
           {currentHumidity != null && (
             <div className="flex items-center justify-center gap-1 mt-0.5">
-              <Icon path={mdiWaterPercent} size={0.5} color="#6b7280" />
-              <span className="text-xs text-gray-500">{currentHumidity}%</span>
+              <Icon path={mdiWaterPercent} size={0.5} color="var(--color-text-tertiary)" />
+              <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-tertiary)' }}>
+                {currentHumidity}%
+              </span>
             </div>
           )}
         </div>
@@ -176,77 +179,30 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
         <div className="flex justify-center gap-4 mb-2">
           {isDualSetpoint ? (
             <>
-              {/* Low setpoint */}
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => adjustTemp('target_temp_low', -1)}
-                  className="p-0.5 rounded hover:bg-white/10 transition-colors"
-                  disabled={widgetMode === 'edit'}
-                >
-                  <Icon path={mdiChevronDown} size={0.6} color="#9ca3af" />
-                </button>
-                <div className="text-center min-w-[40px]">
-                  <div className="text-sm font-semibold text-blue-400">
-                    {targetLow != null ? `${targetLow}°` : '—'}
-                  </div>
-                  <div className="text-[10px] text-gray-600">Low</div>
-                </div>
-                <button
-                  onClick={() => adjustTemp('target_temp_low', 1)}
-                  className="p-0.5 rounded hover:bg-white/10 transition-colors"
-                  disabled={widgetMode === 'edit'}
-                >
-                  <Icon path={mdiChevronUp} size={0.6} color="#9ca3af" />
-                </button>
-              </div>
-              {/* High setpoint */}
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => adjustTemp('target_temp_high', -1)}
-                  className="p-0.5 rounded hover:bg-white/10 transition-colors"
-                  disabled={widgetMode === 'edit'}
-                >
-                  <Icon path={mdiChevronDown} size={0.6} color="#9ca3af" />
-                </button>
-                <div className="text-center min-w-[40px]">
-                  <div className="text-sm font-semibold text-red-400">
-                    {targetHigh != null ? `${targetHigh}°` : '—'}
-                  </div>
-                  <div className="text-[10px] text-gray-600">High</div>
-                </div>
-                <button
-                  onClick={() => adjustTemp('target_temp_high', 1)}
-                  className="p-0.5 rounded hover:bg-white/10 transition-colors"
-                  disabled={widgetMode === 'edit'}
-                >
-                  <Icon path={mdiChevronUp} size={0.6} color="#9ca3af" />
-                </button>
-              </div>
+              <SetpointControl
+                value={targetLow}
+                label="Low"
+                color="var(--color-hvac-cool)"
+                onAdjust={(d) => adjustTemp('target_temp_low', d)}
+                disabled={widgetMode === 'edit'}
+              />
+              <SetpointControl
+                value={targetHigh}
+                label="High"
+                color="var(--color-hvac-heat)"
+                onAdjust={(d) => adjustTemp('target_temp_high', d)}
+                disabled={widgetMode === 'edit'}
+              />
             </>
           ) : (
-            /* Single setpoint */
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => adjustTemp('temperature', -1)}
-                className="p-1 rounded-lg hover:bg-white/10 transition-colors"
-                disabled={widgetMode === 'edit'}
-              >
-                <Icon path={mdiChevronDown} size={0.8} color="#9ca3af" />
-              </button>
-              <div className="text-center min-w-[50px]">
-                <div className="text-lg font-semibold text-white">
-                  {targetTemp != null ? `${targetTemp}°` : '—'}
-                </div>
-                <div className="text-[10px] text-gray-600">Target</div>
-              </div>
-              <button
-                onClick={() => adjustTemp('temperature', 1)}
-                className="p-1 rounded-lg hover:bg-white/10 transition-colors"
-                disabled={widgetMode === 'edit'}
-              >
-                <Icon path={mdiChevronUp} size={0.8} color="#9ca3af" />
-              </button>
-            </div>
+            <SetpointControl
+              value={targetTemp}
+              label="Target"
+              color="var(--color-text-primary)"
+              onAdjust={(d) => adjustTemp('temperature', d)}
+              disabled={widgetMode === 'edit'}
+              large
+            />
           )}
         </div>
       )}
@@ -254,7 +210,8 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
       {/* HVAC mode buttons */}
       <div className="flex justify-center gap-1 mb-1.5">
         {hvacModes.map((m) => {
-          const mc = MODE_CONFIG[m] || { icon: mdiThermometer, color: '#6b7280', label: m };
+          const mc = MODE_CONFIG[m] || { icon: mdiThermometer, color: 'var(--color-hvac-off)', label: m };
+          const hex = MODE_HEX[m] || MODE_HEX.off;
           const isActive = hvacMode === m;
           return (
             <button
@@ -263,12 +220,12 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
               disabled={widgetMode === 'edit'}
               className="p-1.5 rounded-lg transition-colors"
               style={{
-                background: isActive ? `${mc.color}25` : 'transparent',
-                border: isActive ? `1px solid ${mc.color}50` : '1px solid transparent',
+                background: isActive ? `${hex}25` : 'transparent',
+                border: isActive ? `1px solid ${hex}50` : '1px solid transparent',
               }}
               title={mc.label}
             >
-              <Icon path={mc.icon} size={0.6} color={isActive ? mc.color : '#6b7280'} />
+              <Icon path={mc.icon} size={0.6} color={isActive ? mc.color : 'var(--color-text-tertiary)'} />
             </button>
           );
         })}
@@ -277,21 +234,64 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
       {/* Fan mode */}
       {fanModes.length > 0 && (
         <div className="flex items-center justify-center gap-1.5">
-          <Icon path={mdiFan} size={0.5} color="#6b7280" />
+          <Icon path={mdiFan} size={0.5} color="var(--color-text-tertiary)" />
           <select
             value={fanMode || ''}
             onChange={(e) => setFanMode(e.target.value)}
             disabled={widgetMode === 'edit'}
-            className="text-xs bg-transparent text-gray-400 outline-none cursor-pointer"
+            className="text-xs outline-none cursor-pointer"
+            style={{ background: 'transparent', color: 'var(--color-text-secondary)' }}
           >
             {fanModes.map((f) => (
-              <option key={f} value={f} className="bg-neutral-800">
+              <option key={f} value={f} style={{ background: 'var(--color-surface-primary)' }}>
                 {f}
               </option>
             ))}
           </select>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Reusable setpoint up/down control */
+function SetpointControl({
+  value,
+  label,
+  color,
+  onAdjust,
+  disabled,
+  large,
+}: {
+  value: number | null;
+  label: string;
+  color: string;
+  onAdjust: (delta: number) => void;
+  disabled: boolean;
+  large?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => onAdjust(-1)}
+        className="p-0.5 rounded hover:bg-white/10 transition-colors"
+        disabled={disabled}
+      >
+        <Icon path={mdiChevronDown} size={large ? 0.8 : 0.6} color="var(--color-text-secondary)" />
+      </button>
+      <div className="text-center" style={{ minWidth: large ? '50px' : '40px' }}>
+        <div className={`font-semibold ${large ? 'text-lg' : 'text-sm'}`} style={{ color }}>
+          {value != null ? `${value}°` : '—'}
+        </div>
+        <div style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}>{label}</div>
+      </div>
+      <button
+        onClick={() => onAdjust(1)}
+        className="p-0.5 rounded hover:bg-white/10 transition-colors"
+        disabled={disabled}
+      >
+        <Icon path={mdiChevronUp} size={large ? 0.8 : 0.6} color="var(--color-text-secondary)" />
+      </button>
     </div>
   );
 }

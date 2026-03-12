@@ -1,8 +1,92 @@
 @import "tailwindcss";
 
+/*
+ * HA Dash Theme System
+ * CSS custom properties that mirror Home Assistant's design language.
+ * Dark theme is default. Light theme override can be added later.
+ * These map to HA's --ha-card-* and --primary-* variables when embedded.
+ */
+
+@theme {
+  /* Surface colors (backgrounds) */
+  --color-surface-page: #1c1c1c;
+  --color-surface-primary: #1e1e1e;
+  --color-surface-secondary: #262626;
+  --color-surface-tertiary: #303030;
+  --color-surface-hover: #3a3a3a;
+  --color-surface-active: #444444;
+
+  /* Border colors */
+  --color-border-primary: #333333;
+  --color-border-secondary: #404040;
+  --color-border-focus: #4a9eff;
+
+  /* Text colors */
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #6b6b6b;
+  --color-text-disabled: #4a4a4a;
+  --color-text-inverse: #1c1c1c;
+
+  /* Accent / interactive */
+  --color-accent: #4a9eff;
+  --color-accent-hover: #6bb3ff;
+  --color-accent-muted: rgba(74, 158, 255, 0.15);
+
+  /* Status colors */
+  --color-success: #22c55e;
+  --color-success-muted: rgba(34, 197, 94, 0.15);
+  --color-warning: #f59e0b;
+  --color-warning-muted: rgba(245, 158, 11, 0.15);
+  --color-error: #ef4444;
+  --color-error-muted: rgba(239, 68, 68, 0.15);
+  --color-info: #8b5cf6;
+
+  /* Entity state colors */
+  --color-state-on: #f59e0b;
+  --color-state-off: #6b6b6b;
+  --color-state-unavailable: #ef4444;
+
+  /* HVAC mode colors */
+  --color-hvac-cool: #4a9eff;
+  --color-hvac-heat: #ef4444;
+  --color-hvac-auto: #f59e0b;
+  --color-hvac-off: #6b6b6b;
+  --color-hvac-fan: #8b5cf6;
+
+  /* Widget card */
+  --color-card-bg: #1e1e1e;
+  --color-card-border: #333333;
+  --color-card-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-card: 12px;
+
+  /* Font sizes */
+  --text-widget-title: 0.8125rem;
+  --text-widget-value: 1.5rem;
+  --text-widget-unit: 0.75rem;
+  --text-widget-label: 0.6875rem;
+}
+
 body {
   margin: 0;
-  background: #1c1c1c;
-  color: #e1e1e1;
+  background: var(--color-surface-page);
+  color: var(--color-text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Scrollbar styling for the config panel */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: transparent;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary);
+  border-radius: 2px;
 }

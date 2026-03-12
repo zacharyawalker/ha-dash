@@ -4,13 +4,9 @@ import Icon from '@mdi/react';
 import { mdiMagnify, mdiClose } from '@mdi/js';
 
 interface EntityPickerProps {
-  /** Currently selected entity ID */
   value: string;
-  /** Called when an entity is selected */
   onChange: (entityId: string) => void;
-  /** Filter to specific domain(s) (e.g., 'light', 'sensor') */
   domain?: string;
-  /** Placeholder text */
   placeholder?: string;
 }
 
@@ -40,15 +36,18 @@ export default function EntityPicker({
 
   return (
     <div className="relative">
-      {/* Selected value / trigger */}
+      {/* Trigger */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-3 py-2 text-sm bg-neutral-700 text-white rounded-lg border border-neutral-600 hover:border-neutral-500 transition-colors text-left"
+        className="w-full flex items-center justify-between px-3 py-2 text-sm rounded-lg transition-colors text-left"
+        style={{
+          background: 'var(--color-surface-tertiary)',
+          color: value ? 'var(--color-text-primary)' : 'var(--color-text-tertiary)',
+          border: '1px solid var(--color-border-primary)',
+        }}
       >
-        <span className={value ? 'text-white' : 'text-gray-400'}>
-          {value ? displayName : placeholder}
-        </span>
+        <span>{value ? displayName : placeholder}</span>
         {value && (
           <button
             type="button"
@@ -57,7 +56,8 @@ export default function EntityPicker({
               onChange('');
               setSearch('');
             }}
-            className="ml-2 text-gray-400 hover:text-white"
+            className="ml-2 hover:opacity-80"
+            style={{ color: 'var(--color-text-secondary)' }}
           >
             <Icon path={mdiClose} size={0.6} />
           </button>
@@ -66,67 +66,72 @@ export default function EntityPicker({
 
       {/* Entity ID subtitle */}
       {value && selectedEntity && (
-        <div className="mt-0.5 text-xs text-gray-500 px-1">{value}</div>
+        <div className="mt-0.5 text-xs px-1" style={{ color: 'var(--color-text-tertiary)' }}>{value}</div>
       )}
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 z-50 max-h-64 overflow-hidden flex flex-col">
-          {/* Search input */}
-          <div className="flex items-center gap-2 px-3 py-2 border-b border-neutral-700">
-            <Icon path={mdiMagnify} size={0.7} className="text-gray-400 shrink-0" />
+        <div
+          className="absolute top-full left-0 right-0 mt-1 rounded-lg shadow-xl z-50 max-h-64 overflow-hidden flex flex-col"
+          style={{ background: 'var(--color-surface-secondary)', border: '1px solid var(--color-border-secondary)' }}
+        >
+          <div className="flex items-center gap-2 px-3 py-2" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
+            <Icon path={mdiMagnify} size={0.7} color="var(--color-text-tertiary)" className="shrink-0" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={placeholder}
               autoFocus
-              className="w-full text-sm bg-transparent text-white placeholder-gray-400 outline-none"
+              className="w-full text-sm outline-none"
+              style={{ background: 'transparent', color: 'var(--color-text-primary)' }}
             />
           </div>
 
-          {/* Entity list */}
           <div className="overflow-y-auto max-h-56">
             {filtered.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-gray-500 text-center">
+              <div className="px-3 py-4 text-sm text-center" style={{ color: 'var(--color-text-tertiary)' }}>
                 No entities found
               </div>
             ) : (
-              filtered.slice(0, 100).map((e) => (
-                <button
-                  key={e.entity_id}
-                  onClick={() => {
-                    onChange(e.entity_id);
-                    setIsOpen(false);
-                    setSearch('');
-                  }}
-                  className={`w-full text-left px-3 py-2 text-sm hover:bg-neutral-700 transition-colors ${
-                    e.entity_id === value ? 'bg-neutral-700 text-blue-400' : 'text-gray-200'
-                  }`}
-                >
-                  <div className="font-medium">
-                    {(e.attributes.friendly_name as string) || e.entity_id}
-                  </div>
-                  <div className="text-xs text-gray-500 flex items-center gap-2">
-                    <span>{e.entity_id}</span>
-                    <span className="text-gray-600">•</span>
-                    <span>{e.state}</span>
-                  </div>
-                </button>
-              ))
+              filtered.slice(0, 100).map((e) => {
+                const isActive = e.entity_id === value;
+                return (
+                  <button
+                    key={e.entity_id}
+                    onClick={() => {
+                      onChange(e.entity_id);
+                      setIsOpen(false);
+                      setSearch('');
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm transition-colors"
+                    style={{
+                      background: isActive ? 'var(--color-accent-muted)' : 'transparent',
+                      color: isActive ? 'var(--color-accent)' : 'var(--color-text-primary)',
+                    }}
+                    onMouseEnter={(ev) => { if (!isActive) ev.currentTarget.style.background = 'var(--color-surface-hover)'; }}
+                    onMouseLeave={(ev) => { ev.currentTarget.style.background = isActive ? 'var(--color-accent-muted)' : 'transparent'; }}
+                  >
+                    <div className="font-medium">
+                      {(e.attributes.friendly_name as string) || e.entity_id}
+                    </div>
+                    <div className="text-xs flex items-center gap-2" style={{ color: 'var(--color-text-tertiary)' }}>
+                      <span>{e.entity_id}</span>
+                      <span>•</span>
+                      <span>{e.state}</span>
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
       )}
 
-      {/* Close dropdown on outside click */}
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
-          onClick={() => {
-            setIsOpen(false);
-            setSearch('');
-          }}
+          onClick={() => { setIsOpen(false); setSearch(''); }}
         />
       )}
     </div>

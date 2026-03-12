@@ -33,12 +33,12 @@ export default function SceneButton({ config, mode }: WidgetProps) {
     <button
       onClick={handleActivate}
       disabled={activating || mode === 'edit'}
-      className="flex flex-col items-center justify-center w-full h-full rounded-xl transition-all"
+      className="flex flex-col items-center justify-center w-full h-full rounded-card transition-all"
       style={{
         background: activated
-          ? 'linear-gradient(135deg, #22c55e20 0%, #22c55e10 100%)'
-          : 'rgba(255,255,255,0.05)',
-        border: activated ? '1px solid #22c55e40' : '1px solid transparent',
+          ? 'var(--color-success-muted)'
+          : 'var(--color-surface-secondary)',
+        border: activated ? '1px solid rgba(34, 197, 94, 0.25)' : '1px solid transparent',
         cursor: mode === 'edit' ? 'grab' : 'pointer',
       }}
     >
@@ -50,7 +50,7 @@ export default function SceneButton({ config, mode }: WidgetProps) {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
           >
-            <Icon path={mdiCheck} size={1.8} color="#22c55e" />
+            <Icon path={mdiCheck} size={1.8} color="var(--color-success)" />
           </motion.div>
         ) : (
           <motion.div
@@ -62,12 +62,14 @@ export default function SceneButton({ config, mode }: WidgetProps) {
             <Icon
               path={mdiPlay}
               size={1.8}
-              color={activating ? '#6b7280' : '#8b5cf6'}
+              color={activating ? 'var(--color-text-tertiary)' : 'var(--color-info)'}
             />
           </motion.div>
         )}
       </AnimatePresence>
-      <span className="mt-2 text-sm font-medium text-gray-300">{label}</span>
+      <span className="mt-2 font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
+        {label}
+      </span>
     </button>
   );
 }
