@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function WidgetWrapper({ widget, mode }: Props) {
-  const { updateWidget, selectedWidgetId, selectWidget } =
+  const { updateWidget, selectedWidgetId, selectWidget, snapToGrid, gridEnabled, gridSize } =
     useDashboardStore();
 
   const WidgetComponent = widgetComponents[widget.type];
@@ -28,22 +28,27 @@ export default function WidgetWrapper({ widget, mode }: Props) {
           selectWidget(widget.id);
         }}
         onDragStop={(_e, d) => {
-          updateWidget(widget.id, { x: d.x, y: d.y });
+          updateWidget(widget.id, {
+            x: snapToGrid(d.x),
+            y: snapToGrid(d.y),
+          });
         }}
         onResizeStop={(_e, _dir, ref, _delta, position) => {
           updateWidget(widget.id, {
-            width: parseInt(ref.style.width),
-            height: parseInt(ref.style.height),
-            x: position.x,
-            y: position.y,
+            width: gridEnabled ? snapToGrid(parseInt(ref.style.width)) : parseInt(ref.style.width),
+            height: gridEnabled ? snapToGrid(parseInt(ref.style.height)) : parseInt(ref.style.height),
+            x: snapToGrid(position.x),
+            y: snapToGrid(position.y),
           });
         }}
+        dragGrid={gridEnabled ? [gridSize, gridSize] : undefined}
+        resizeGrid={gridEnabled ? [gridSize, gridSize] : undefined}
         bounds="parent"
         minWidth={80}
         minHeight={80}
         style={{
           outline: isSelected ? '2px solid var(--color-accent)' : '1px dashed var(--color-border-secondary)',
-          borderRadius: '12px',
+          borderRadius: 'var(--radius-card)',
           overflow: 'visible',
           zIndex: isSelected ? 10 : 1,
         }}

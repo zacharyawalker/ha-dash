@@ -5,11 +5,14 @@ import Toolbar from './components/Toolbar';
 import Canvas from './components/Canvas';
 import WidgetConfigPanel from './components/WidgetConfigPanel';
 import ErrorBoundary from './components/ErrorBoundary';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 export default function App() {
   const { load, loading, error } = useDashboardStore();
   const mode = useDashboardStore((s) => s.mode);
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId);
+
+  useKeyboardShortcuts();
 
   useEffect(() => {
     wsManager.connect();

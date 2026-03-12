@@ -10,6 +10,9 @@ import {
   mdiPlus,
   mdiContentSave,
   mdiCircle,
+  mdiUndo,
+  mdiRedo,
+  mdiGrid,
 } from '@mdi/js';
 import { generateId } from '../utils/id';
 
@@ -41,7 +44,7 @@ function ConnectionBadge() {
 }
 
 export default function Toolbar() {
-  const { mode, setMode, addWidget, save, dashboard } = useDashboardStore();
+  const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled } = useDashboardStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [addStep, setAddStep] = useState<'type' | 'entity' | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -205,6 +208,47 @@ export default function Toolbar() {
             >
               <Icon path={mdiContentSave} size={0.7} />
               Save
+            </button>
+
+            {/* Undo / Redo */}
+            <div className="flex items-center gap-0.5 ml-1">
+              <button
+                onClick={undo}
+                disabled={!canUndo()}
+                className="p-1.5 rounded-lg transition-colors"
+                style={{
+                  color: canUndo() ? 'var(--color-text-primary)' : 'var(--color-text-disabled)',
+                  background: 'var(--color-surface-tertiary)',
+                }}
+                title="Undo (Ctrl+Z)"
+              >
+                <Icon path={mdiUndo} size={0.7} />
+              </button>
+              <button
+                onClick={redo}
+                disabled={!canRedo()}
+                className="p-1.5 rounded-lg transition-colors"
+                style={{
+                  color: canRedo() ? 'var(--color-text-primary)' : 'var(--color-text-disabled)',
+                  background: 'var(--color-surface-tertiary)',
+                }}
+                title="Redo (Ctrl+Y)"
+              >
+                <Icon path={mdiRedo} size={0.7} />
+              </button>
+            </div>
+
+            {/* Grid toggle */}
+            <button
+              onClick={() => setGridEnabled(!gridEnabled)}
+              className="p-1.5 rounded-lg transition-colors"
+              style={{
+                color: gridEnabled ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
+                background: gridEnabled ? 'var(--color-accent-muted)' : 'var(--color-surface-tertiary)',
+              }}
+              title={`Grid snap: ${gridEnabled ? 'ON' : 'OFF'} (Ctrl+G)`}
+            >
+              <Icon path={mdiGrid} size={0.7} />
             </button>
           </>
         )}
