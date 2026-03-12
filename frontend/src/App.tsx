@@ -3,9 +3,12 @@ import { useDashboardStore } from './store/dashboardStore';
 import { wsManager } from './api/websocket';
 import Toolbar from './components/Toolbar';
 import Canvas from './components/Canvas';
+import WidgetConfigPanel from './components/WidgetConfigPanel';
 
 export default function App() {
   const { load, loading, error } = useDashboardStore();
+  const mode = useDashboardStore((s) => s.mode);
+  const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId);
 
   // Initialize WebSocket connection to HA
   useEffect(() => {
@@ -37,7 +40,10 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen">
       <Toolbar />
-      <Canvas />
+      <div className="flex flex-1 overflow-hidden">
+        <Canvas />
+        {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}
+      </div>
     </div>
   );
 }
