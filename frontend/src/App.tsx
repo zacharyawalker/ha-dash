@@ -1,11 +1,19 @@
 import { useEffect } from 'react';
 import { useDashboardStore } from './store/dashboardStore';
+import { wsManager } from './api/websocket';
 import Toolbar from './components/Toolbar';
 import Canvas from './components/Canvas';
 
 export default function App() {
   const { load, loading, error } = useDashboardStore();
 
+  // Initialize WebSocket connection to HA
+  useEffect(() => {
+    wsManager.connect();
+    return () => wsManager.disconnect();
+  }, []);
+
+  // Load dashboard
   useEffect(() => {
     load();
   }, [load]);

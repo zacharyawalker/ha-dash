@@ -5,17 +5,14 @@ import { mdiLightbulb, mdiLightbulbOff } from '@mdi/js';
 import type { WidgetProps } from '../../types/widget';
 
 export default function LightToggle({ config, mode }: WidgetProps) {
-  const { entity, refetch } = useHaEntity(config.entityId);
+  const { entity } = useHaEntity(config.entityId);
   const isOn = entity?.state === 'on';
 
   const handleToggle = async () => {
-    console.log('[LightToggle] clicked, mode:', mode, 'entityId:', config.entityId);
     if (mode === 'edit' || !config.entityId) return;
     try {
-      const result = await callService('light', 'toggle', { entity_id: config.entityId });
-      console.log('[LightToggle] toggle response:', result);
-      // Refetch state after a short delay to let HA process the change
-      setTimeout(() => refetch(), 500);
+      await callService('light', 'toggle', { entity_id: config.entityId });
+      // No manual refetch needed — state update arrives via WebSocket
     } catch (e) {
       console.error('[LightToggle] Failed to toggle light:', e);
     }

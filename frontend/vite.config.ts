@@ -7,7 +7,13 @@ export default defineConfig({
   base: './',
   server: {
     proxy: {
-      '/api': 'http://localhost:8099',
+      '/api/ws': {
+        target: 'http://localhost:8099',
+        ws: true,
+      },
+      '/api': {
+        target: 'http://localhost:8099',
+      },
     },
   },
   build: {
