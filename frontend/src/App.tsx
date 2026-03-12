@@ -5,6 +5,7 @@ import Toolbar from './components/Toolbar';
 import Canvas from './components/Canvas';
 import WidgetConfigPanel from './components/WidgetConfigPanel';
 import ErrorBoundary from './components/ErrorBoundary';
+import PageTabs from './components/PageTabs';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 export default function App() {
@@ -53,6 +54,7 @@ export default function App() {
     <ErrorBoundary>
       <div className="flex flex-col h-screen">
         <Toolbar />
+        <PageTabs />
         <div className="flex flex-1 overflow-hidden">
           <Canvas />
           {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}

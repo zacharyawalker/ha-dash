@@ -15,10 +15,25 @@ export interface Widget {
   config: WidgetConfig;
 }
 
+/** A page within a dashboard (tabs) */
+export interface DashboardPage {
+  id: string;
+  name: string;
+  icon?: string;
+  widgets: Widget[];
+}
+
 export interface Dashboard {
   id: string;
   name: string;
   createdAt: string;
   updatedAt: string;
+  /** Legacy flat widgets — migrated to pages[0] on load */
   widgets: Widget[];
+  /** Multi-page support */
+  pages?: DashboardPage[];
+  /** Active page index */
+  activePage?: number;
+  /** Theme: 'dark' | 'light' */
+  theme?: 'dark' | 'light';
 }

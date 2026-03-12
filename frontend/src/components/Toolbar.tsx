@@ -13,6 +13,8 @@ import {
   mdiUndo,
   mdiRedo,
   mdiGrid,
+  mdiWeatherNight,
+  mdiWeatherSunny,
 } from '@mdi/js';
 import { generateId } from '../utils/id';
 
@@ -44,7 +46,7 @@ function ConnectionBadge() {
 }
 
 export default function Toolbar() {
-  const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled } = useDashboardStore();
+  const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled, theme, setTheme } = useDashboardStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [addStep, setAddStep] = useState<'type' | 'entity' | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -254,16 +256,31 @@ export default function Toolbar() {
         )}
       </div>
 
-      <button
-        onClick={() => setMode(mode === 'edit' ? 'view' : 'edit')}
-        className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors"
-        style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-primary)' }}
-        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-surface-hover)')}
-        onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--color-surface-tertiary)')}
-      >
-        <Icon path={mode === 'edit' ? mdiEye : mdiPencil} size={0.7} />
-        {mode === 'edit' ? 'View' : 'Edit'}
-      </button>
+      <div className="flex items-center gap-2">
+        {/* Theme toggle */}
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          className="p-1.5 rounded-lg transition-colors"
+          style={{
+            color: 'var(--color-text-secondary)',
+            background: 'var(--color-surface-tertiary)',
+          }}
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+        >
+          <Icon path={theme === 'dark' ? mdiWeatherSunny : mdiWeatherNight} size={0.7} />
+        </button>
+
+        <button
+          onClick={() => setMode(mode === 'edit' ? 'view' : 'edit')}
+          className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors"
+          style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-primary)' }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-surface-hover)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--color-surface-tertiary)')}
+        >
+          <Icon path={mode === 'edit' ? mdiEye : mdiPencil} size={0.7} />
+          {mode === 'edit' ? 'View' : 'Edit'}
+        </button>
+      </div>
     </div>
   );
 }

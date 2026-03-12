@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import type { Dashboard, Widget } from '../types/dashboard';
+import type { Dashboard, DashboardPage, Widget } from '../types/dashboard';
 import { loadDashboard, saveDashboard } from '../api/client';
 import { generateId } from '../utils/id';
 
-/** Undoable action */
 interface HistoryEntry {
-  widgets: Widget[];
+  pages: DashboardPage[];
+  activePage: number;
   label: string;
 }
 
@@ -13,19 +13,24 @@ interface DashboardStore {
   dashboard: Dashboard | null;
   mode: 'edit' | 'view';
   selectedWidgetId: string | null;
-  /** Multi-select: additional selected widget IDs */
   selectedWidgetIds: Set<string>;
   loading: boolean;
   error: string | null;
+  activePage: number;
+  theme: 'dark' | 'light';
 
-  /** Grid snapping */
+  // Grid
   gridEnabled: boolean;
   gridSize: number;
 
-  /** Undo/redo */
+  // History
   history: HistoryEntry[];
   historyIndex: number;
   clipboard: Widget | null;
+
+  // Helpers
+  getPages: () => DashboardPage[];
+  getActivePageWidgets: () => Widget[];
 
   // Actions
   setMode: (mode: 'edit' | 'view') => void;
@@ -35,6 +40,12 @@ interface DashboardStore {
   addWidget: (widget: Widget) => void;
   updateWidget: (id: string, updates: Partial<Widget>) => void;
   removeWidget: (id: string) => void;
+
+  // Pages
+  setActivePage: (index: number) => void;
+  addPage: (name?: string) => void;
+  removePage: (index: number) => void;
+  renamePage: (index: number, name: string) => void;
 
   // Grid
   setGridEnabled: (enabled: boolean) => void;
@@ -50,12 +61,32 @@ interface DashboardStore {
   // Copy/paste
   copyWidget: () => void;
   pasteWidget: () => void;
-
-  // Multi-select
   deleteSelected: () => void;
+
+  // Theme
+  setTheme: (theme: 'dark' | 'light') => void;
 }
 
 const MAX_HISTORY = 50;
+
+/** Migrate legacy flat widgets to pages */
+function ensurePages(dashboard: Dashboard): DashboardPage[] {
+  if (dashboard.pages && dashboard.pages.length > 0) return dashboard.pages;
+  return [{ id: generateId(), name: 'Main', widgets: dashboard.widgets || [] }];
+}
+
+function pushHistory(
+  history: HistoryEntry[],
+  historyIndex: number,
+  pages: DashboardPage[],
+  activePage: number,
+  label: string,
+): { history: HistoryEntry[]; historyIndex: number } {
+  const newHistory = history.slice(0, historyIndex + 1);
+  newHistory.push({ pages: pages.map((p) => ({ ...p, widgets: [...p.widgets] })), activePage, label });
+  if (newHistory.length > MAX_HISTORY) newHistory.shift();
+  return { history: newHistory, historyIndex: newHistory.length - 1 };
+}
 
 export const useDashboardStore = create<DashboardStore>((set, get) => ({
   dashboard: null,
@@ -64,11 +95,24 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   selectedWidgetIds: new Set(),
   loading: false,
   error: null,
+  activePage: 0,
+  theme: 'dark',
   gridEnabled: true,
   gridSize: 20,
   history: [],
   historyIndex: -1,
   clipboard: null,
+
+  getPages: () => {
+    const { dashboard } = get();
+    return dashboard ? ensurePages(dashboard) : [];
+  },
+
+  getActivePageWidgets: () => {
+    const pages = get().getPages();
+    const { activePage } = get();
+    return pages[activePage]?.widgets || [];
+  },
 
   setMode: (mode) => set({ mode, selectedWidgetId: null, selectedWidgetIds: new Set() }),
 
@@ -78,14 +122,9 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     } else if (id) {
       const { selectedWidgetIds, selectedWidgetId } = get();
       const newSet = new Set(selectedWidgetIds);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      // First selected becomes primary
-      const primary = selectedWidgetId || id;
-      set({ selectedWidgetId: primary, selectedWidgetIds: newSet });
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
+      set({ selectedWidgetId: selectedWidgetId || id, selectedWidgetIds: newSet });
     }
   },
 
@@ -93,10 +132,16 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const dashboard = await loadDashboard(id);
+      const pages = ensurePages(dashboard);
+      const ap = dashboard.activePage || 0;
+      const theme = dashboard.theme || 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
       set({
-        dashboard,
+        dashboard: { ...dashboard, pages },
         loading: false,
-        history: [{ widgets: [...dashboard.widgets], label: 'Load' }],
+        activePage: ap,
+        theme,
+        history: [{ pages: pages.map((p) => ({ ...p, widgets: [...p.widgets] })), activePage: ap, label: 'Load' }],
         historyIndex: 0,
       });
     } catch (e) {
@@ -105,63 +150,118 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   },
 
   save: async () => {
-    const { dashboard } = get();
+    const { dashboard, activePage, theme } = get();
     if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    // Keep widgets as flat for backward compat
+    const toSave = {
+      ...dashboard,
+      pages,
+      widgets: pages[activePage]?.widgets || [],
+      activePage,
+      theme,
+    };
     try {
-      await saveDashboard(dashboard.id, dashboard);
+      await saveDashboard(toSave.id, toSave);
     } catch (e) {
       set({ error: (e as Error).message });
     }
   },
 
-  /** Push to history before mutation */
   addWidget: (widget) => {
-    const { dashboard, history, historyIndex } = get();
+    const { dashboard, activePage, history, historyIndex } = get();
     if (!dashboard) return;
-    const newWidgets = [...dashboard.widgets, widget];
-    const newHistory = history.slice(0, historyIndex + 1);
-    newHistory.push({ widgets: newWidgets, label: `Add ${widget.type}` });
-    if (newHistory.length > MAX_HISTORY) newHistory.shift();
-
-    set({
-      dashboard: { ...dashboard, widgets: newWidgets },
-      history: newHistory,
-      historyIndex: newHistory.length - 1,
-    });
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) =>
+      i === activePage ? { ...p, widgets: [...p.widgets, widget] } : p,
+    );
+    const h = pushHistory(history, historyIndex, newPages, activePage, `Add ${widget.type}`);
+    set({ dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets }, ...h });
   },
 
   updateWidget: (id, updates) => {
-    const { dashboard, history, historyIndex } = get();
+    const { dashboard, activePage, history, historyIndex } = get();
     if (!dashboard) return;
-    const newWidgets = dashboard.widgets.map((w) => w.id === id ? { ...w, ...updates } : w);
-    // Only push to history for significant updates (not every drag pixel)
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) =>
+      i === activePage
+        ? { ...p, widgets: p.widgets.map((w) => (w.id === id ? { ...w, ...updates } : w)) }
+        : p,
+    );
     const isSignificant = updates.config || updates.type;
-    const newHistory = isSignificant
-      ? [...history.slice(0, historyIndex + 1), { widgets: newWidgets, label: 'Update widget' }]
-      : history;
-    if (newHistory.length > MAX_HISTORY) newHistory.shift();
-
-    set({
-      dashboard: { ...dashboard, widgets: newWidgets },
-      history: newHistory,
-      historyIndex: isSignificant ? newHistory.length - 1 : historyIndex,
-    });
+    const h = isSignificant
+      ? pushHistory(history, historyIndex, newPages, activePage, 'Update widget')
+      : { history, historyIndex };
+    set({ dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets }, ...h });
   },
 
   removeWidget: (id) => {
-    const { dashboard, history, historyIndex } = get();
+    const { dashboard, activePage, history, historyIndex } = get();
     if (!dashboard) return;
-    const newWidgets = dashboard.widgets.filter((w) => w.id !== id);
-    const newHistory = [...history.slice(0, historyIndex + 1), { widgets: newWidgets, label: 'Delete widget' }];
-    if (newHistory.length > MAX_HISTORY) newHistory.shift();
-
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) =>
+      i === activePage ? { ...p, widgets: p.widgets.filter((w) => w.id !== id) } : p,
+    );
+    const h = pushHistory(history, historyIndex, newPages, activePage, 'Delete widget');
     set({
-      dashboard: { ...dashboard, widgets: newWidgets },
+      dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets },
       selectedWidgetId: null,
       selectedWidgetIds: new Set(),
-      history: newHistory,
-      historyIndex: newHistory.length - 1,
+      ...h,
     });
+  },
+
+  // Pages
+  setActivePage: (index) => {
+    set({ activePage: index, selectedWidgetId: null, selectedWidgetIds: new Set() });
+    // Update widgets shortcut for Canvas
+    const pages = get().getPages();
+    const { dashboard } = get();
+    if (dashboard && pages[index]) {
+      set({ dashboard: { ...dashboard, widgets: pages[index].widgets } });
+    }
+  },
+
+  addPage: (name) => {
+    const { dashboard, history, historyIndex } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    const newPage: DashboardPage = { id: generateId(), name: name || `Page ${pages.length + 1}`, widgets: [] };
+    const newPages = [...pages, newPage];
+    const newIndex = newPages.length - 1;
+    const h = pushHistory(history, historyIndex, newPages, newIndex, 'Add page');
+    set({
+      dashboard: { ...dashboard, pages: newPages, widgets: [] },
+      activePage: newIndex,
+      selectedWidgetId: null,
+      selectedWidgetIds: new Set(),
+      ...h,
+    });
+  },
+
+  removePage: (index) => {
+    const { dashboard, activePage, history, historyIndex } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    if (pages.length <= 1) return; // Can't delete last page
+    const newPages = pages.filter((_, i) => i !== index);
+    const newActive = Math.min(activePage, newPages.length - 1);
+    const h = pushHistory(history, historyIndex, newPages, newActive, 'Delete page');
+    set({
+      dashboard: { ...dashboard, pages: newPages, widgets: newPages[newActive].widgets },
+      activePage: newActive,
+      selectedWidgetId: null,
+      selectedWidgetIds: new Set(),
+      ...h,
+    });
+  },
+
+  renamePage: (index, name) => {
+    const { dashboard } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) => (i === index ? { ...p, name } : p));
+    set({ dashboard: { ...dashboard, pages: newPages } });
   },
 
   // Grid
@@ -169,8 +269,7 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
   setGridSize: (size) => set({ gridSize: size }),
   snapToGrid: (value) => {
     const { gridEnabled, gridSize } = get();
-    if (!gridEnabled) return value;
-    return Math.round(value / gridSize) * gridSize;
+    return gridEnabled ? Math.round(value / gridSize) * gridSize : value;
   },
 
   // Undo/redo
@@ -179,7 +278,8 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     if (!dashboard || historyIndex <= 0) return;
     const prev = history[historyIndex - 1];
     set({
-      dashboard: { ...dashboard, widgets: [...prev.widgets] },
+      dashboard: { ...dashboard, pages: prev.pages, widgets: prev.pages[prev.activePage]?.widgets || [] },
+      activePage: prev.activePage,
       historyIndex: historyIndex - 1,
       selectedWidgetId: null,
       selectedWidgetIds: new Set(),
@@ -191,7 +291,8 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     if (!dashboard || historyIndex >= history.length - 1) return;
     const next = history[historyIndex + 1];
     set({
-      dashboard: { ...dashboard, widgets: [...next.widgets] },
+      dashboard: { ...dashboard, pages: next.pages, widgets: next.pages[next.activePage]?.widgets || [] },
+      activePage: next.activePage,
       historyIndex: historyIndex + 1,
       selectedWidgetId: null,
       selectedWidgetIds: new Set(),
@@ -203,38 +304,40 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
 
   // Copy/paste
   copyWidget: () => {
-    const { dashboard, selectedWidgetId } = get();
-    if (!dashboard || !selectedWidgetId) return;
-    const widget = dashboard.widgets.find((w) => w.id === selectedWidgetId);
+    const { selectedWidgetId } = get();
+    if (!selectedWidgetId) return;
+    const widgets = get().getActivePageWidgets();
+    const widget = widgets.find((w) => w.id === selectedWidgetId);
     if (widget) set({ clipboard: { ...widget } });
   },
 
   pasteWidget: () => {
     const { clipboard } = get();
     if (!clipboard) return;
-    const newWidget: Widget = {
-      ...clipboard,
-      id: generateId(),
-      x: clipboard.x + 30,
-      y: clipboard.y + 30,
-    };
+    const newWidget: Widget = { ...clipboard, id: generateId(), x: clipboard.x + 30, y: clipboard.y + 30 };
     get().addWidget(newWidget);
     set({ selectedWidgetId: newWidget.id, selectedWidgetIds: new Set([newWidget.id]) });
   },
 
-  // Delete all selected
   deleteSelected: () => {
-    const { dashboard, selectedWidgetIds, history, historyIndex } = get();
+    const { dashboard, activePage, selectedWidgetIds, history, historyIndex } = get();
     if (!dashboard || selectedWidgetIds.size === 0) return;
-    const newWidgets = dashboard.widgets.filter((w) => !selectedWidgetIds.has(w.id));
-    const newHistory = [...history.slice(0, historyIndex + 1), { widgets: newWidgets, label: `Delete ${selectedWidgetIds.size} widgets` }];
-
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) =>
+      i === activePage ? { ...p, widgets: p.widgets.filter((w) => !selectedWidgetIds.has(w.id)) } : p,
+    );
+    const h = pushHistory(history, historyIndex, newPages, activePage, `Delete ${selectedWidgetIds.size} widgets`);
     set({
-      dashboard: { ...dashboard, widgets: newWidgets },
+      dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets },
       selectedWidgetId: null,
       selectedWidgetIds: new Set(),
-      history: newHistory,
-      historyIndex: newHistory.length - 1,
+      ...h,
     });
+  },
+
+  // Theme
+  setTheme: (theme) => {
+    document.documentElement.setAttribute('data-theme', theme);
+    set({ theme });
   },
 }));
