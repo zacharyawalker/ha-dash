@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Dashboard, DashboardPage, Widget } from '../types/dashboard';
 import { loadDashboard, saveDashboard } from '../api/client';
+import { useToastStore } from './toastStore';
 import { generateId } from '../utils/id';
 
 interface HistoryEntry {
@@ -196,8 +197,10 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       await saveDashboard(toSave.id, toSave);
       // Update localStorage cache
       try { localStorage.setItem(`ha-dash-${toSave.id}`, JSON.stringify(toSave)); } catch { /* quota */ }
+      useToastStore.getState().addToast('Dashboard saved', 'success');
     } catch (e) {
       set({ error: (e as Error).message });
+      useToastStore.getState().addToast('Failed to save dashboard', 'error');
     }
   },
 
