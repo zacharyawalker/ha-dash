@@ -43,6 +43,9 @@ import NotificationList from './NotificationList';
 import SensorGrid from './SensorGrid';
 import ColorLight from './ColorLight';
 import ButtonRow from './ButtonRow';
+import ThermostatMini from './ThermostatMini';
+import ProgressBar from './ProgressBar';
+import GlanceCard from './GlanceCard';
 import TodoList from './TodoList';
 import EntityList from './EntityList';
 
@@ -85,6 +88,9 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'sensor-grid': SensorGrid,
   'color-light': ColorLight,
   'button-row': ButtonRow,
+  'thermostat-mini': ThermostatMini,
+  'progress-bar': ProgressBar,
+  'glance-card': GlanceCard,
   'todo-list': TodoList,
 };
 
@@ -404,6 +410,67 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Thermostat Mini ===
+  {
+    type: 'thermostat-mini',
+    label: 'Thermostat (Compact)',
+    icon: 'mdi:thermometer',
+    category: 'climate',
+    defaultWidth: 320,
+    defaultHeight: 80,
+    minWidth: 240,
+    minHeight: 60,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Climate Entity', type: 'entity', domain: 'climate', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Progress Bar ===
+  {
+    type: 'progress-bar',
+    label: 'Progress Bar',
+    icon: 'mdi:chart-line',
+    category: 'display',
+    defaultWidth: 280,
+    defaultHeight: 80,
+    minWidth: 180,
+    minHeight: 60,
+    defaultConfig: { label: '', min: 0, max: 100 },
+    configFields: [
+      { key: 'entityId', label: 'Sensor Entity', type: 'entity', domain: 'sensor', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+      { key: 'min', label: 'Min', type: 'number' },
+      { key: 'max', label: 'Max', type: 'number' },
+      { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
+    ],
+  },
+
+  // === Glance Card ===
+  {
+    type: 'glance-card',
+    label: 'Glance Card',
+    icon: 'mdi:eye',
+    category: 'display',
+    defaultWidth: 450,
+    defaultHeight: 100,
+    minWidth: 200,
+    minHeight: 70,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
+      { key: 'entity1', label: 'Entity 1', type: 'entity' },
+      { key: 'entity2', label: 'Entity 2', type: 'entity' },
+      { key: 'entity3', label: 'Entity 3', type: 'entity' },
+      { key: 'entity4', label: 'Entity 4', type: 'entity' },
+      { key: 'entity5', label: 'Entity 5', type: 'entity' },
+      { key: 'entity6', label: 'Entity 6', type: 'entity' },
+      { key: 'entity7', label: 'Entity 7', type: 'entity' },
+      { key: 'entity8', label: 'Entity 8', type: 'entity' },
     ],
   },
 
