@@ -11,6 +11,7 @@ import ShortcutHelp from './components/ShortcutHelp';
 import ContextMenu from './components/ContextMenu';
 import Minimap from './components/Minimap';
 import PageSidebar from './components/PageSidebar';
+import WelcomeOverlay from './components/WelcomeOverlay';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -25,6 +26,7 @@ export default function App() {
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId);
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem('ha-dash-welcomed'));
 
   useKeyboardShortcuts();
   useTouchOptimization();
@@ -102,6 +104,9 @@ export default function App() {
         <ContextMenu />
         <Minimap />
         <PageSidebar />
+        {showWelcome && (
+          <WelcomeOverlay onDismiss={() => { setShowWelcome(false); localStorage.setItem('ha-dash-welcomed', '1'); }} />
+        )}
         <ToastContainer />
       </div>
     </ErrorBoundary>
