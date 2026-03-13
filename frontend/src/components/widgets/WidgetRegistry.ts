@@ -28,6 +28,11 @@ import PersonTracker from './PersonTracker';
 import GaugeWidget from './GaugeWidget';
 import IframeEmbed from './IframeEmbed';
 import HistoryGraph from './HistoryGraph';
+import GroupContainer from './GroupContainer';
+import SectionHeader from './SectionHeader';
+import ImageWidget from './ImageWidget';
+import CameraFeed from './CameraFeed';
+import StateCard from './StateCard';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'light-toggle': LightToggle,
@@ -52,6 +57,11 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'gauge-widget': GaugeWidget,
   'iframe-embed': IframeEmbed,
   'history-graph': HistoryGraph,
+  'group-container': GroupContainer,
+  'section-header': SectionHeader,
+  'image-widget': ImageWidget,
+  'camera-feed': CameraFeed,
+  'state-card': StateCard,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -413,7 +423,107 @@ export const widgetDefinitions: WidgetDefinition[] = [
     ],
   },
 
+  // === Universal ===
+  {
+    type: 'state-card',
+    label: 'State Card',
+    icon: 'mdi:information',
+    category: 'display',
+    defaultWidth: 160,
+    defaultHeight: 160,
+    minWidth: 100,
+    minHeight: 80,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+      { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
+    ],
+  },
+
+  // === Camera ===
+  {
+    type: 'camera-feed',
+    label: 'Camera Feed',
+    icon: 'mdi:cctv',
+    category: 'display',
+    defaultWidth: 320,
+    defaultHeight: 240,
+    minWidth: 200,
+    minHeight: 150,
+    defaultConfig: { label: '', refreshSeconds: 10 },
+    configFields: [
+      { key: 'entityId', label: 'Camera Entity', type: 'entity', domain: 'camera', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+      { key: 'refreshSeconds', label: 'Refresh Interval (seconds)', type: 'number', min: 1, max: 300 },
+    ],
+  },
+
   // === Layout ===
+  {
+    type: 'group-container',
+    label: 'Group / Container',
+    icon: 'mdi:view-grid',
+    category: 'layout',
+    defaultWidth: 400,
+    defaultHeight: 300,
+    minWidth: 200,
+    minHeight: 100,
+    defaultConfig: { label: 'Group', showBorder: true, bgOpacity: 60 },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
+      { key: 'showBorder', label: 'Show Border', type: 'toggle' },
+      { key: 'bgOpacity', label: 'Background Opacity (%)', type: 'number', min: 0, max: 100 },
+    ],
+  },
+  {
+    type: 'section-header',
+    label: 'Section Header',
+    icon: 'mdi:format-header-1',
+    category: 'layout',
+    defaultWidth: 300,
+    defaultHeight: 60,
+    minWidth: 150,
+    minHeight: 40,
+    defaultConfig: { label: 'Section', subtitle: '', align: 'left', showLine: true, fontSize: 'medium' },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text', required: true },
+      { key: 'subtitle', label: 'Subtitle', type: 'text' },
+      { key: 'align', label: 'Alignment', type: 'select', options: [
+        { label: 'Left', value: 'left' },
+        { label: 'Center', value: 'center' },
+        { label: 'Right', value: 'right' },
+      ]},
+      { key: 'fontSize', label: 'Size', type: 'select', options: [
+        { label: 'Small', value: 'small' },
+        { label: 'Medium', value: 'medium' },
+        { label: 'Large', value: 'large' },
+      ]},
+      { key: 'showLine', label: 'Show Line', type: 'toggle' },
+    ],
+  },
+  {
+    type: 'image-widget',
+    label: 'Image',
+    icon: 'mdi:image',
+    category: 'layout',
+    defaultWidth: 300,
+    defaultHeight: 200,
+    minWidth: 100,
+    minHeight: 80,
+    defaultConfig: { label: '', imageUrl: '', objectFit: 'cover', borderRadius: 12, imageOpacity: 100 },
+    configFields: [
+      { key: 'imageUrl', label: 'Image URL', type: 'text', placeholder: 'https://...', required: true },
+      { key: 'label', label: 'Caption', type: 'text' },
+      { key: 'objectFit', label: 'Fit', type: 'select', options: [
+        { label: 'Cover', value: 'cover' },
+        { label: 'Contain', value: 'contain' },
+        { label: 'Fill', value: 'fill' },
+      ]},
+      { key: 'borderRadius', label: 'Corner Radius (px)', type: 'number', min: 0, max: 50 },
+      { key: 'imageOpacity', label: 'Opacity (%)', type: 'number', min: 0, max: 100 },
+    ],
+  },
   {
     type: 'markdown-block',
     label: 'Text / Markdown',
