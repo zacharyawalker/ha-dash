@@ -13,6 +13,7 @@ import ToastContainer from './components/ToastContainer';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTouchOptimization } from './hooks/useTouchOptimization';
 import { useAutoHideToolbar } from './hooks/useAutoHideToolbar';
+import { useSwipeNavigation } from './hooks/useSwipeNavigation';
 
 export default function App() {
   const { load, loading, error } = useDashboardStore();
@@ -23,6 +24,7 @@ export default function App() {
   useKeyboardShortcuts();
   useTouchOptimization();
   const { toolbarVisible } = useAutoHideToolbar(mode);
+  useSwipeNavigation();
 
   useEffect(() => {
     wsManager.connect();

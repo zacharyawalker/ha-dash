@@ -33,6 +33,10 @@ import SectionHeader from './SectionHeader';
 import ImageWidget from './ImageWidget';
 import CameraFeed from './CameraFeed';
 import StateCard from './StateCard';
+import AlarmPanel from './AlarmPanel';
+import TimerWidget from './TimerWidget';
+import CounterWidget from './CounterWidget';
+import VacuumCard from './VacuumCard';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'light-toggle': LightToggle,
@@ -62,6 +66,10 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'image-widget': ImageWidget,
   'camera-feed': CameraFeed,
   'state-card': StateCard,
+  'alarm-panel': AlarmPanel,
+  'timer-widget': TimerWidget,
+  'counter-widget': CounterWidget,
+  'vacuum-card': VacuumCard,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -420,6 +428,74 @@ export const widgetDefinitions: WidgetDefinition[] = [
     configFields: [
       { key: 'url', label: 'URL', type: 'text', placeholder: 'https://...', required: true },
       { key: 'label', label: 'Label', type: 'text', placeholder: 'Optional title' },
+    ],
+  },
+
+  // === Security ===
+  {
+    type: 'alarm-panel',
+    label: 'Alarm Panel',
+    icon: 'mdi:shield-home',
+    category: 'control',
+    defaultWidth: 260,
+    defaultHeight: 320,
+    minWidth: 200,
+    minHeight: 260,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Alarm Entity', type: 'entity', domain: 'alarm_control_panel', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Timer ===
+  {
+    type: 'timer-widget',
+    label: 'Timer',
+    icon: 'mdi:timer-outline',
+    category: 'control',
+    defaultWidth: 180,
+    defaultHeight: 220,
+    minWidth: 140,
+    minHeight: 180,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Timer Entity', type: 'entity', domain: 'timer', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Counter ===
+  {
+    type: 'counter-widget',
+    label: 'Counter',
+    icon: 'mdi:counter',
+    category: 'control',
+    defaultWidth: 160,
+    defaultHeight: 220,
+    minWidth: 120,
+    minHeight: 180,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Counter Entity', type: 'entity', domain: 'counter', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Vacuum ===
+  {
+    type: 'vacuum-card',
+    label: 'Vacuum',
+    icon: 'mdi:robot-vacuum',
+    category: 'control',
+    defaultWidth: 200,
+    defaultHeight: 280,
+    minWidth: 160,
+    minHeight: 240,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Vacuum Entity', type: 'entity', domain: 'vacuum', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
     ],
   },
 
