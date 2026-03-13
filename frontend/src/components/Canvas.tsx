@@ -48,8 +48,8 @@ export default function Canvas() {
             if (e.target === e.currentTarget) selectWidget(null);
           }}
         >
-          {widgets.map((widget) => (
-            <WidgetWrapper key={widget.id} widget={widget} mode={mode} />
+          {widgets.map((widget, i) => (
+            <WidgetWrapper key={widget.id} widget={widget} mode={mode} index={i} />
           ))}
         </motion.div>
       </AnimatePresence>

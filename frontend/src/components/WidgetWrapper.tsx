@@ -9,6 +9,7 @@ import WidgetErrorBoundary from './WidgetErrorBoundary';
 interface Props {
   widget: Widget;
   mode: 'edit' | 'view';
+  index?: number;
 }
 
 /**
@@ -30,7 +31,7 @@ function useConditionalVisibility(widget: Widget, mode: 'edit' | 'view'): { visi
 
 import { memo } from 'react';
 
-function WidgetWrapperInner({ widget, mode }: Props) {
+function WidgetWrapperInner({ widget, mode, index = 0 }: Props) {
   const { updateWidget, selectedWidgetId, selectWidget, snapToGrid, gridEnabled, gridSize } =
     useDashboardStore();
   const { visible, dimmed } = useConditionalVisibility(widget, mode);
@@ -106,8 +107,9 @@ function WidgetWrapperInner({ widget, mode }: Props) {
       }}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ delay: Math.min(index * 0.04, 0.6), duration: 0.3, ease: 'easeOut' }}
         className="w-full h-full"
       >
         <WidgetErrorBoundary widgetId={widget.id}>
@@ -122,6 +124,7 @@ function WidgetWrapperInner({ widget, mode }: Props) {
 const WidgetWrapper = memo(WidgetWrapperInner, (prev, next) => {
   return (
     prev.mode === next.mode &&
+    prev.index === next.index &&
     prev.widget.id === next.widget.id &&
     prev.widget.x === next.widget.x &&
     prev.widget.y === next.widget.y &&
