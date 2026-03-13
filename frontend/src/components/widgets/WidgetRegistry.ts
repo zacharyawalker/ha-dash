@@ -19,6 +19,14 @@ import WeatherForecast from './WeatherForecast';
 import MarkdownBlock from './MarkdownBlock';
 import ClockWidget from './ClockWidget';
 
+// Phase 4 widgets
+import MediaPlayer from './MediaPlayer';
+import CoverControl from './CoverControl';
+import LockControl from './LockControl';
+import FanControl from './FanControl';
+import PersonTracker from './PersonTracker';
+import GaugeWidget from './GaugeWidget';
+
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'light-toggle': LightToggle,
   'sensor-display': SensorDisplay,
@@ -34,6 +42,12 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'weather-forecast': WeatherForecast,
   'markdown-block': MarkdownBlock,
   'clock-widget': ClockWidget,
+  'media-player': MediaPlayer,
+  'cover-control': CoverControl,
+  'lock-control': LockControl,
+  'fan-control': FanControl,
+  'person-tracker': PersonTracker,
+  'gauge-widget': GaugeWidget,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -245,6 +259,113 @@ export const widgetDefinitions: WidgetDefinition[] = [
     configFields: [
       { key: 'entityId', label: 'Entity', type: 'entity', domain: 'input_number', required: true },
       { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Media ===
+  {
+    type: 'media-player',
+    label: 'Media Player',
+    icon: 'mdi:television',
+    category: 'media',
+    defaultWidth: 280,
+    defaultHeight: 280,
+    minWidth: 220,
+    minHeight: 200,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', domain: 'media_player', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Cover / Blinds ===
+  {
+    type: 'cover-control',
+    label: 'Cover / Blinds',
+    icon: 'mdi:blinds-horizontal',
+    category: 'control',
+    defaultWidth: 180,
+    defaultHeight: 240,
+    minWidth: 140,
+    minHeight: 200,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', domain: 'cover', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Lock ===
+  {
+    type: 'lock-control',
+    label: 'Lock',
+    icon: 'mdi:lock',
+    category: 'control',
+    defaultWidth: 140,
+    defaultHeight: 160,
+    minWidth: 100,
+    minHeight: 120,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', domain: 'lock', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Fan ===
+  {
+    type: 'fan-control',
+    label: 'Fan Speed',
+    icon: 'mdi:fan',
+    category: 'control',
+    defaultWidth: 180,
+    defaultHeight: 260,
+    minWidth: 140,
+    minHeight: 200,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', domain: 'fan', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Person ===
+  {
+    type: 'person-tracker',
+    label: 'Person Tracker',
+    icon: 'mdi:account-circle',
+    category: 'display',
+    defaultWidth: 160,
+    defaultHeight: 180,
+    minWidth: 120,
+    minHeight: 140,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', domain: 'person', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Gauge ===
+  {
+    type: 'gauge-widget',
+    label: 'Gauge',
+    icon: 'mdi:gauge',
+    category: 'display',
+    defaultWidth: 160,
+    defaultHeight: 160,
+    minWidth: 120,
+    minHeight: 120,
+    defaultConfig: { label: '', min: 0, max: 100, lowThreshold: 30, highThreshold: 70 },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', domain: 'sensor', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+      { key: 'min', label: 'Min Value', type: 'number', min: -1000, max: 10000 },
+      { key: 'max', label: 'Max Value', type: 'number', min: -1000, max: 10000 },
+      { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
+      { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
+      { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
     ],
   },
 

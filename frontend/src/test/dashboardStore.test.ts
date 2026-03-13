@@ -183,7 +183,12 @@ describe('dashboardStore', () => {
 
       await promise;
       expect(useDashboardStore.getState().loading).toBe(false);
-      expect(useDashboardStore.getState().dashboard).toEqual(mockDashboard);
+      const dash = useDashboardStore.getState().dashboard!;
+      expect(dash.id).toBe(mockDashboard.id);
+      expect(dash.name).toBe(mockDashboard.name);
+      // Pages auto-created from legacy widgets
+      expect(dash.pages).toBeDefined();
+      expect(dash.pages!.length).toBeGreaterThanOrEqual(1);
     });
 
     it('handles load errors', async () => {
