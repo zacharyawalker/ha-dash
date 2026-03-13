@@ -96,7 +96,7 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
   return (
     <div
       className="flex items-center justify-between px-4 py-2"
-      style={{ background: 'var(--color-surface-primary)', borderBottom: '1px solid var(--color-border-primary)' }}
+      style={{ background: 'var(--color-surface-primary)', borderBottom: '1px solid var(--color-border-primary)', overflow: 'visible', position: 'relative', zIndex: 50 }}
     >
       <div className="flex items-center gap-3">
         <button
@@ -130,8 +130,8 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
 
               {showAddMenu && (
                 <div
-                  className="absolute top-full left-0 mt-1 w-64 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
-                  style={{ background: 'var(--color-surface-tertiary)', border: '1px solid var(--color-border-secondary)' }}
+                  className="absolute top-full left-0 mt-1 w-64 rounded-lg shadow-xl max-h-[70vh] overflow-y-auto"
+                  style={{ zIndex: 9999, background: 'var(--color-surface-tertiary)', border: '1px solid var(--color-border-secondary)' }}
                 >
                   {addStep === 'type' && (
                     <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>

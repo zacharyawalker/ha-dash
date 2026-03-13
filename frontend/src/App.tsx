@@ -66,6 +66,9 @@ export default function App() {
           transition: 'transform 0.3s ease, opacity 0.3s ease',
           transform: toolbarVisible ? 'translateY(0)' : 'translateY(-100%)',
           opacity: toolbarVisible ? 1 : 0,
+          overflow: 'visible',
+          position: 'relative',
+          zIndex: 40,
         }}>
           <Toolbar onDashboardClick={() => setShowSwitcher(true)} />
           <PageTabs />
