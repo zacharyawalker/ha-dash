@@ -12,6 +12,7 @@ import {
   mdiChevronUp,
   mdiChevronDown,
 } from '@mdi/js';
+import { getIconByName } from '../../utils/haIcons';
 import type { WidgetProps } from '../../types/widget';
 
 /** HVAC mode colors and icons */
@@ -51,6 +52,13 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
   const [pendingHigh, setPendingHigh] = useState<number | null>(null);
   const [pendingLow, setPendingLow] = useState<number | null>(null);
 
+  // Read appearance config
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
+  const showFan = config.showFan as boolean;
+  const showHumidity = config.showHumidity !== false; // default true
+
   if (!entity) {
     return (
       <div
@@ -79,7 +87,9 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
   const maxTemp = (attrs.max_temp as number) || 90;
 
   const modeConfig = MODE_CONFIG[hvacMode] || MODE_CONFIG.off;
-  const modeHex = MODE_HEX[hvacMode] || MODE_HEX.off;
+  // Use accent color override if set, otherwise use mode-based color
+  const effectiveHex = accentColor || MODE_HEX[hvacMode] || MODE_HEX.off;
+  const modeHex = effectiveHex;
 
   const setTemperature = async (data: Record<string, unknown>) => {
     if (widgetMode === 'edit' || !config.entityId) return;
@@ -143,19 +153,21 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
       }}
     >
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <Icon path={modeConfig.icon} size={0.7} color={modeConfig.color} />
-          <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-primary)' }} className="font-medium truncate">
-            {label}
-          </span>
+      {!hideLabel && (
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Icon path={customIcon || modeConfig.icon} size={0.7} color={accentColor || modeConfig.color} />
+            <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-primary)' }} className="font-medium truncate">
+              {label}
+            </span>
+          </div>
+          {hvacAction && (
+            <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-tertiary)' }} className="shrink-0">
+              {ACTION_LABELS[hvacAction] || hvacAction}
+            </span>
+          )}
         </div>
-        {hvacAction && (
-          <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-tertiary)' }} className="shrink-0">
-            {ACTION_LABELS[hvacAction] || hvacAction}
-          </span>
-        )}
-      </div>
+      )}
 
       {/* Current temperature */}
       <div className="flex items-center justify-center flex-1">
@@ -163,10 +175,10 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
           <div className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {currentTemp != null ? `${currentTemp}°` : '—'}
           </div>
-          {currentHumidity != null && (
+          {showHumidity && currentHumidity != null && (
             <div className="flex items-center justify-center gap-1 mt-0.5">
-              <Icon path={mdiWaterPercent} size={0.5} color="var(--color-text-tertiary)" />
-              <span style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-tertiary)' }}>
+              <Icon path={mdiWaterPercent} size={0.5} color={accentColor || 'var(--color-text-tertiary)'} />
+              <span style={{ fontSize: 'var(--text-widget-label)', color: accentColor || 'var(--color-text-tertiary)' }}>
                 {currentHumidity}%
               </span>
             </div>
@@ -211,7 +223,7 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
       <div className="flex justify-center gap-1 mb-1.5">
         {hvacModes.map((m) => {
           const mc = MODE_CONFIG[m] || { icon: mdiThermometer, color: 'var(--color-hvac-off)', label: m };
-          const hex = MODE_HEX[m] || MODE_HEX.off;
+          const hex = accentColor || MODE_HEX[m] || MODE_HEX.off;
           const isActive = hvacMode === m;
           return (
             <button
@@ -232,7 +244,7 @@ export default function ClimateCard({ config, mode: widgetMode }: WidgetProps) {
       </div>
 
       {/* Fan mode */}
-      {fanModes.length > 0 && (
+      {showFan && fanModes.length > 0 && (
         <div className="flex items-center justify-center gap-1.5">
           <Icon path={mdiFan} size={0.5} color="var(--color-text-tertiary)" />
           <select
