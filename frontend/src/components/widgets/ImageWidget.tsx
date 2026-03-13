@@ -9,6 +9,7 @@ export default function ImageWidget({ config }: WidgetProps) {
   const borderRadius = (config.borderRadius as number) ?? 12;
   const opacity = (config.imageOpacity as number) ?? 100;
   const caption = String(config.label || '');
+  const hideLabel = config.hideLabel as boolean;
 
   if (!url) {
     return (
@@ -33,7 +34,7 @@ export default function ImageWidget({ config }: WidgetProps) {
         }}
         draggable={false}
       />
-      {caption && (
+      {caption && !hideLabel && (
         <div
           className="absolute bottom-0 left-0 right-0 px-3 py-2 text-xs font-medium"
           style={{

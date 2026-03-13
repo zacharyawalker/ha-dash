@@ -40,6 +40,7 @@ import VacuumCard from './VacuumCard';
 import BatteryMonitor from './BatteryMonitor';
 import EnergyMonitor from './EnergyMonitor';
 import NotificationList from './NotificationList';
+import SensorGrid from './SensorGrid';
 import TodoList from './TodoList';
 import EntityList from './EntityList';
 
@@ -79,6 +80,7 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'entity-list': EntityList,
   'energy-monitor': EnergyMonitor,
   'notification-list': NotificationList,
+  'sensor-grid': SensorGrid,
   'todo-list': TodoList,
 };
 
@@ -398,6 +400,28 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Multi-Sensor ===
+  {
+    type: 'sensor-grid',
+    label: 'Sensor Grid',
+    icon: 'mdi:gauge',
+    category: 'display',
+    defaultWidth: 320,
+    defaultHeight: 240,
+    minWidth: 200,
+    minHeight: 150,
+    defaultConfig: { label: 'Sensors' },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
+      { key: 'entity1', label: 'Sensor 1', type: 'entity', domain: 'sensor' },
+      { key: 'entity2', label: 'Sensor 2', type: 'entity', domain: 'sensor' },
+      { key: 'entity3', label: 'Sensor 3', type: 'entity', domain: 'sensor' },
+      { key: 'entity4', label: 'Sensor 4', type: 'entity', domain: 'sensor' },
+      { key: 'entity5', label: 'Sensor 5', type: 'entity', domain: 'sensor' },
+      { key: 'entity6', label: 'Sensor 6', type: 'entity', domain: 'sensor' },
     ],
   },
 

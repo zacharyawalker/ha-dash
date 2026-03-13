@@ -31,18 +31,23 @@ export default function InputNumber({ config, mode }: WidgetProps) {
   };
 
   const label = String(config.label || entity?.attributes?.friendly_name || config.entityId || 'Number');
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
+  const accent = accentColor || 'var(--color-accent)';
 
   return (
     <div
       className="flex flex-col items-center justify-between w-full h-full rounded-card p-3"
       style={{ background: 'var(--color-surface-secondary)' }}
     >
-      <div className="flex items-center gap-1.5">
-        <Icon path={mdiNumeric} size={0.7} color="var(--color-accent)" />
-        <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
-          {label}
-        </span>
-      </div>
+      {!hideLabel && (
+        <div className="flex items-center gap-1.5">
+          <Icon path={mdiNumeric} size={0.7} color={accent} />
+          <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
+            {label}
+          </span>
+        </div>
+      )}
 
       <div className="text-center">
         <span className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
@@ -62,8 +67,8 @@ export default function InputNumber({ config, mode }: WidgetProps) {
           disabled={mode === 'edit'}
           className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
           style={{
-            background: `linear-gradient(to right, var(--color-accent) 0%, var(--color-accent) ${((displayValue - min) / (max - min)) * 100}%, var(--color-surface-tertiary) ${((displayValue - min) / (max - min)) * 100}%, var(--color-surface-tertiary) 100%)`,
-            accentColor: 'var(--color-accent)',
+            background: `linear-gradient(to right, ${accent} 0%, ${accent} ${((displayValue - min) / (max - min)) * 100}%, var(--color-surface-tertiary) ${((displayValue - min) / (max - min)) * 100}%, var(--color-surface-tertiary) 100%)`,
+            accentColor: accent,
           }}
         />
         <div className="flex justify-between text-xs mt-1" style={{ color: 'var(--color-text-tertiary)' }}>
