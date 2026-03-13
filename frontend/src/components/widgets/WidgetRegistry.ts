@@ -39,6 +39,8 @@ import CounterWidget from './CounterWidget';
 import VacuumCard from './VacuumCard';
 import BatteryMonitor from './BatteryMonitor';
 import EnergyMonitor from './EnergyMonitor';
+import NotificationList from './NotificationList';
+import TodoList from './TodoList';
 import EntityList from './EntityList';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
@@ -76,6 +78,8 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'battery-monitor': BatteryMonitor,
   'entity-list': EntityList,
   'energy-monitor': EnergyMonitor,
+  'notification-list': NotificationList,
+  'todo-list': TodoList,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -394,6 +398,37 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Notifications ===
+  {
+    type: 'notification-list',
+    label: 'Notifications',
+    icon: 'mdi:bell',
+    category: 'display',
+    defaultWidth: 280,
+    defaultHeight: 300,
+    minWidth: 200,
+    minHeight: 150,
+    defaultConfig: { label: '' },
+    configFields: [],
+  },
+
+  // === Todo / Shopping List ===
+  {
+    type: 'todo-list',
+    label: 'Todo / Shopping List',
+    icon: 'mdi:format-list-bulleted',
+    category: 'control',
+    defaultWidth: 260,
+    defaultHeight: 350,
+    minWidth: 200,
+    minHeight: 200,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Todo Entity', type: 'entity', domain: 'todo', required: true },
+      { key: 'label', label: 'Title', type: 'text', placeholder: 'Auto from entity' },
     ],
   },
 

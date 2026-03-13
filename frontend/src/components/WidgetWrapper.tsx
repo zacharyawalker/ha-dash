@@ -85,6 +85,7 @@ function WidgetWrapperInner({ widget, mode }: Props) {
           animate={{ opacity: 1, scale: 1 }}
           className="w-full h-full"
           style={{ pointerEvents: 'none' }}
+          data-widget-id={widget.id}
         >
           <WidgetErrorBoundary widgetId={widget.id}>
             <WidgetComponent config={widget.config} mode={mode} />

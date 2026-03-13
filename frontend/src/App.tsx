@@ -7,6 +7,8 @@ import WidgetConfigPanel from './components/WidgetConfigPanel';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTabs from './components/PageTabs';
 import DashboardSwitcher from './components/DashboardSwitcher';
+import ShortcutHelp from './components/ShortcutHelp';
+import ContextMenu from './components/ContextMenu';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -20,11 +22,23 @@ export default function App() {
   const mode = useDashboardStore((s) => s.mode);
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId);
   const [showSwitcher, setShowSwitcher] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   useKeyboardShortcuts();
   useTouchOptimization();
   const { toolbarVisible } = useAutoHideToolbar(mode);
   useSwipeNavigation();
+
+  // '?' opens keyboard shortcut help
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === '?') setShowShortcuts((v) => !v);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
 
   useEffect(() => {
     wsManager.connect();
@@ -82,6 +96,8 @@ export default function App() {
         </div>
         <StatusBar />
         {showSwitcher && <DashboardSwitcher onClose={() => setShowSwitcher(false)} />}
+        <ShortcutHelp open={showShortcuts} onClose={() => setShowShortcuts(false)} />
+        <ContextMenu />
         <ToastContainer />
       </div>
     </ErrorBoundary>

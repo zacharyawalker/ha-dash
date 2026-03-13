@@ -24,8 +24,8 @@ export async function getState(entityId: string) {
   return fetchJson<HaState>(`/ha/states/${entityId}`);
 }
 
-export async function callService(domain: string, service: string, data: Record<string, unknown>) {
-  return fetchJson<unknown>(`/ha/services/${domain}/${service}`, {
+export async function callService(domain: string, service: string, data: Record<string, unknown>, returnResponse = false) {
+  return fetchJson<unknown>(`/ha/services/${domain}/${service}${returnResponse ? '?return_response=true' : ''}`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
