@@ -7,7 +7,10 @@ import WidgetConfigPanel from './components/WidgetConfigPanel';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTabs from './components/PageTabs';
 import DashboardSwitcher from './components/DashboardSwitcher';
+import ConnectionBanner from './components/ConnectionBanner';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { useTouchOptimization } from './hooks/useTouchOptimization';
+import { useAutoHideToolbar } from './hooks/useAutoHideToolbar';
 
 export default function App() {
   const { load, loading, error } = useDashboardStore();
@@ -16,6 +19,8 @@ export default function App() {
   const [showSwitcher, setShowSwitcher] = useState(false);
 
   useKeyboardShortcuts();
+  useTouchOptimization();
+  const { toolbarVisible } = useAutoHideToolbar(mode);
 
   useEffect(() => {
     wsManager.connect();
@@ -55,9 +60,16 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="flex flex-col h-screen">
-        <Toolbar onDashboardClick={() => setShowSwitcher(true)} />
-        <PageTabs />
-        <div className="flex flex-1 overflow-hidden">
+        <ConnectionBanner />
+        <div style={{
+          transition: 'transform 0.3s ease, opacity 0.3s ease',
+          transform: toolbarVisible ? 'translateY(0)' : 'translateY(-100%)',
+          opacity: toolbarVisible ? 1 : 0,
+        }}>
+          <Toolbar onDashboardClick={() => setShowSwitcher(true)} />
+          <PageTabs />
+        </div>
+        <div className="flex flex-1 overflow-hidden" style={{ marginTop: toolbarVisible ? 0 : '-88px', transition: 'margin-top 0.3s ease' }}>
           <Canvas />
           {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}
         </div>

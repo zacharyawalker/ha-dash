@@ -14,6 +14,8 @@ import {
   mdiRedo,
   mdiGrid,
   mdiWeatherNight,
+  mdiFullscreen,
+  mdiFullscreenExit,
   mdiWeatherSunny,
 } from '@mdi/js';
 import { generateId } from '../utils/id';
@@ -289,6 +291,25 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
           <Icon path={theme === 'dark' ? mdiWeatherSunny : mdiWeatherNight} size={0.7} />
+        </button>
+
+        {/* Fullscreen toggle */}
+        <button
+          onClick={() => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            } else {
+              document.documentElement.requestFullscreen();
+            }
+          }}
+          className="p-1.5 rounded-lg transition-colors"
+          style={{
+            color: 'var(--color-text-secondary)',
+            background: 'var(--color-surface-tertiary)',
+          }}
+          title="Toggle fullscreen"
+        >
+          <Icon path={document.fullscreenElement ? mdiFullscreenExit : mdiFullscreen} size={0.7} />
         </button>
 
         <button
