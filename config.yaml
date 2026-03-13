@@ -1,6 +1,6 @@
 name: "HA Dash"
 description: "A flexible, customizable Home Assistant dashboard"
-version: "0.1.0"
+version: "2.0.0"
 slug: "ha-dash"
 url: "https://github.com/zacharyawalker/ha-dash"
 
