@@ -1,46 +1,8 @@
 {
+  "activePage": 0,
   "createdAt": "2026-03-12T00:00:00Z",
   "id": "default",
   "name": "My Dashboard",
-  "updatedAt": "2026-03-13T01:27:11.445486+00:00",
-  "widgets": [
-    {
-      "config": {
-        "entityId": "light.entry_main_light",
-        "label": "Entry Light"
-      },
-      "height": 140,
-      "id": "test-light-1",
-      "type": "light-toggle",
-      "width": 140,
-      "x": 68,
-      "y": 123
-    },
-    {
-      "config": {
-        "entityId": "climate.thermostat_hallway",
-        "label": "Thermostat - Hallway"
-      },
-      "height": 489,
-      "id": "d5b68a8bf598b7e8d0f196f3ddde9ba6",
-      "type": "climate-card",
-      "width": 365,
-      "x": 345,
-      "y": 149
-    },
-    {
-      "id": "f9c89d70d83aca7ea64c223c0ea7a49c",
-      "type": "dimmer-slider",
-      "x": 847.4046162350345,
-      "y": 205.9129889097148,
-      "width": 160,
-      "height": 200,
-      "config": {
-        "label": "Entry - Main Light",
-        "entityId": "light.entry_main_light"
-      }
-    }
-  ],
   "pages": [
     {
       "id": "1c97f21d14fe323487363d74543c8866",
@@ -71,20 +33,86 @@
           "y": 149
         },
         {
+          "config": {
+            "entityId": "light.entry_main_light",
+            "label": "Entry - Main Light"
+          },
+          "height": 200,
           "id": "f9c89d70d83aca7ea64c223c0ea7a49c",
           "type": "dimmer-slider",
-          "x": 847.4046162350345,
-          "y": 205.9129889097148,
           "width": 160,
-          "height": 200,
+          "x": 847.4046162350345,
+          "y": 205.9129889097148
+        },
+        {
+          "id": "1aad65e7f30a8980e044008e198b58d3",
+          "type": "clock-widget",
+          "x": 75.2374227993131,
+          "y": 218.89593559264858,
+          "width": 200,
+          "height": 140,
           "config": {
-            "label": "Entry - Main Light",
-            "entityId": "light.entry_main_light"
+            "showDate": true,
+            "showSeconds": false,
+            "use24h": false,
+            "showIcon": true
           }
         }
       ]
     }
   ],
-  "activePage": 0,
-  "theme": "dark"
+  "theme": "dark",
+  "updatedAt": "2026-03-13T17:46:18.939962+00:00",
+  "widgets": [
+    {
+      "config": {
+        "entityId": "light.entry_main_light",
+        "label": "Entry Light"
+      },
+      "height": 140,
+      "id": "test-light-1",
+      "type": "light-toggle",
+      "width": 140,
+      "x": 68,
+      "y": 123
+    },
+    {
+      "config": {
+        "entityId": "climate.thermostat_hallway",
+        "label": "Thermostat - Hallway"
+      },
+      "height": 489,
+      "id": "d5b68a8bf598b7e8d0f196f3ddde9ba6",
+      "type": "climate-card",
+      "width": 365,
+      "x": 345,
+      "y": 149
+    },
+    {
+      "config": {
+        "entityId": "light.entry_main_light",
+        "label": "Entry - Main Light"
+      },
+      "height": 200,
+      "id": "f9c89d70d83aca7ea64c223c0ea7a49c",
+      "type": "dimmer-slider",
+      "width": 160,
+      "x": 847.4046162350345,
+      "y": 205.9129889097148
+    },
+    {
+      "id": "1aad65e7f30a8980e044008e198b58d3",
+      "type": "clock-widget",
+      "x": 75.2374227993131,
+      "y": 218.89593559264858,
+      "width": 200,
+      "height": 140,
+      "config": {
+        "showDate": true,
+        "showSeconds": false,
+        "use24h": false,
+        "showIcon": true
+      }
+    }
+  ]
 }
