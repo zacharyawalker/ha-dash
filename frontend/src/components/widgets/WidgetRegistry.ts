@@ -26,6 +26,7 @@ import LockControl from './LockControl';
 import FanControl from './FanControl';
 import PersonTracker from './PersonTracker';
 import GaugeWidget from './GaugeWidget';
+import IframeEmbed from './IframeEmbed';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'light-toggle': LightToggle,
@@ -48,6 +49,7 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'fan-control': FanControl,
   'person-tracker': PersonTracker,
   'gauge-widget': GaugeWidget,
+  'iframe-embed': IframeEmbed,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -366,6 +368,23 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Embed ===
+  {
+    type: 'iframe-embed',
+    label: 'Iframe Embed',
+    icon: 'mdi:web',
+    category: 'layout',
+    defaultWidth: 400,
+    defaultHeight: 300,
+    minWidth: 200,
+    minHeight: 150,
+    defaultConfig: { label: 'Embed', url: '' },
+    configFields: [
+      { key: 'url', label: 'URL', type: 'text', placeholder: 'https://...', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Optional title' },
     ],
   },
 

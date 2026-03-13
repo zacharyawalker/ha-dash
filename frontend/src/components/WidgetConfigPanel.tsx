@@ -241,6 +241,30 @@ export default function WidgetConfigPanel() {
             <div>H: {widget.height}</div>
           </div>
         </div>
+
+        {/* Conditional visibility */}
+        <div className="pt-2" style={{ borderTop: '1px solid var(--color-border-primary)' }}>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+            Conditional Visibility
+          </label>
+          <div className="space-y-2">
+            <ConfigFieldInput
+              field={{ key: 'visibilityEntity', label: 'Entity', type: 'entity' as const, placeholder: 'Optional — show only when...' }}
+              value={localConfig.visibilityEntity}
+              onChange={(v) => handleChange('visibilityEntity', v)}
+            />
+            {!!localConfig.visibilityEntity && (
+              <ConfigFieldInput
+                field={{ key: 'visibilityState', label: 'Required State', type: 'text' as const, placeholder: 'on, home, open...' }}
+                value={localConfig.visibilityState}
+                onChange={(v) => handleChange('visibilityState', v)}
+              />
+            )}
+          </div>
+          <p className="mt-1 text-xs" style={{ color: 'var(--color-text-tertiary)' }}>
+            Widget only visible when entity matches state
+          </p>
+        </div>
       </div>
 
       {/* Footer */}

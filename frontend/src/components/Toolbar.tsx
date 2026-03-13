@@ -45,7 +45,7 @@ function ConnectionBadge() {
   );
 }
 
-export default function Toolbar() {
+export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () => void } = {}) {
   const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled, theme, setTheme } = useDashboardStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [addStep, setAddStep] = useState<'type' | 'entity' | null>(null);
@@ -97,9 +97,14 @@ export default function Toolbar() {
       style={{ background: 'var(--color-surface-primary)', borderBottom: '1px solid var(--color-border-primary)' }}
     >
       <div className="flex items-center gap-3">
-        <h1 className="text-lg font-semibold mr-2" style={{ color: 'var(--color-text-primary)' }}>
+        <button
+          onClick={onDashboardClick}
+          className="text-lg font-semibold mr-2 hover:opacity-80 transition-opacity"
+          style={{ color: 'var(--color-text-primary)', background: 'none', border: 'none', cursor: 'pointer' }}
+          title="Switch dashboard"
+        >
           {dashboard?.name || 'HA Dash'}
-        </h1>
+        </button>
 
         <ConnectionBadge />
 

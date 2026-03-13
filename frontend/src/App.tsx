@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDashboardStore } from './store/dashboardStore';
 import { wsManager } from './api/websocket';
 import Toolbar from './components/Toolbar';
@@ -6,12 +6,14 @@ import Canvas from './components/Canvas';
 import WidgetConfigPanel from './components/WidgetConfigPanel';
 import ErrorBoundary from './components/ErrorBoundary';
 import PageTabs from './components/PageTabs';
+import DashboardSwitcher from './components/DashboardSwitcher';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 
 export default function App() {
   const { load, loading, error } = useDashboardStore();
   const mode = useDashboardStore((s) => s.mode);
   const selectedWidgetId = useDashboardStore((s) => s.selectedWidgetId);
+  const [showSwitcher, setShowSwitcher] = useState(false);
 
   useKeyboardShortcuts();
 
@@ -53,12 +55,13 @@ export default function App() {
   return (
     <ErrorBoundary>
       <div className="flex flex-col h-screen">
-        <Toolbar />
+        <Toolbar onDashboardClick={() => setShowSwitcher(true)} />
         <PageTabs />
         <div className="flex flex-1 overflow-hidden">
           <Canvas />
           {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}
         </div>
+        {showSwitcher && <DashboardSwitcher onClose={() => setShowSwitcher(false)} />}
       </div>
     </ErrorBoundary>
   );

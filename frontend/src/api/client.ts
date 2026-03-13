@@ -47,6 +47,20 @@ export async function listDashboards() {
   return fetchJson<{ id: string; name: string }[]>('/dashboards/');
 }
 
+export async function deleteDashboard(id: string) {
+  return fetchJson<{ status: string }>(`/dashboards/${id}`, { method: 'DELETE' });
+}
+
+export async function createDashboard(id: string, name: string) {
+  return saveDashboard(id, {
+    id,
+    name,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    widgets: [],
+  } as import('../types/dashboard').Dashboard);
+}
+
 // HA state type
 export interface HaState {
   entity_id: string;
