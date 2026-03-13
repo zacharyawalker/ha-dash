@@ -41,6 +41,8 @@ import BatteryMonitor from './BatteryMonitor';
 import EnergyMonitor from './EnergyMonitor';
 import NotificationList from './NotificationList';
 import SensorGrid from './SensorGrid';
+import ColorLight from './ColorLight';
+import ButtonRow from './ButtonRow';
 import TodoList from './TodoList';
 import EntityList from './EntityList';
 
@@ -81,6 +83,8 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'energy-monitor': EnergyMonitor,
   'notification-list': NotificationList,
   'sensor-grid': SensorGrid,
+  'color-light': ColorLight,
+  'button-row': ButtonRow,
   'todo-list': TodoList,
 };
 
@@ -400,6 +404,45 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Color Light ===
+  {
+    type: 'color-light',
+    label: 'Color Light',
+    icon: 'mdi:lightbulb',
+    category: 'control',
+    defaultWidth: 180,
+    defaultHeight: 280,
+    minWidth: 140,
+    minHeight: 200,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Light Entity', type: 'entity', domain: 'light', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Button Row ===
+  {
+    type: 'button-row',
+    label: 'Button Row',
+    icon: 'mdi:dots-horizontal',
+    category: 'control',
+    defaultWidth: 400,
+    defaultHeight: 80,
+    minWidth: 200,
+    minHeight: 60,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
+      { key: 'entity1', label: 'Entity 1', type: 'entity', domains: ['light', 'switch', 'input_boolean', 'fan'] },
+      { key: 'entity2', label: 'Entity 2', type: 'entity', domains: ['light', 'switch', 'input_boolean', 'fan'] },
+      { key: 'entity3', label: 'Entity 3', type: 'entity', domains: ['light', 'switch', 'input_boolean', 'fan'] },
+      { key: 'entity4', label: 'Entity 4', type: 'entity', domains: ['light', 'switch', 'input_boolean', 'fan'] },
+      { key: 'entity5', label: 'Entity 5', type: 'entity', domains: ['light', 'switch', 'input_boolean', 'fan'] },
+      { key: 'entity6', label: 'Entity 6', type: 'entity', domains: ['light', 'switch', 'input_boolean', 'fan'] },
     ],
   },
 
