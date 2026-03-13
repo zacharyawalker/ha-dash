@@ -46,6 +46,7 @@ import ButtonRow from './ButtonRow';
 import ThermostatMini from './ThermostatMini';
 import ProgressBar from './ProgressBar';
 import GlanceCard from './GlanceCard';
+import EntityStatus from './EntityStatus';
 import TodoList from './TodoList';
 import EntityList from './EntityList';
 
@@ -91,6 +92,7 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'thermostat-mini': ThermostatMini,
   'progress-bar': ProgressBar,
   'glance-card': GlanceCard,
+  'entity-status': EntityStatus,
   'todo-list': TodoList,
 };
 
@@ -410,6 +412,23 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Entity Status (Universal) ===
+  {
+    type: 'entity-status',
+    label: 'Entity Status',
+    icon: 'mdi:information',
+    category: 'display',
+    defaultWidth: 140,
+    defaultHeight: 140,
+    minWidth: 100,
+    minHeight: 50,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
     ],
   },
 
