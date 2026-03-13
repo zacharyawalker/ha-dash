@@ -3,6 +3,7 @@ import { callService } from '../../api/client';
 import { useHaEntity } from '../../hooks/useHaEntities';
 import Icon from '@mdi/react';
 import { mdiPlay, mdiCheck } from '@mdi/js';
+import { getIconByName } from '../../utils/haIcons';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WidgetProps } from '../../types/widget';
 
@@ -10,66 +11,61 @@ export default function SceneButton({ config, mode }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
   const [activating, setActivating] = useState(false);
   const [activated, setActivated] = useState(false);
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accent = (config.accentColor as string) || 'var(--color-accent)';
+  const hideLabel = config.hideLabel as boolean;
+  const compact = config.compactMode as boolean;
 
   const handleActivate = async () => {
-    if (mode === 'edit' || !config.entityId) return;
+    if (mode === 'edit' || !config.entityId || activating) return;
     setActivating(true);
     try {
       await callService('scene', 'turn_on', { entity_id: config.entityId });
       setActivated(true);
-      setTimeout(() => setActivated(false), 1500);
+      setTimeout(() => setActivated(false), 2000);
     } catch (e) {
-      console.error('[SceneButton] Failed to activate scene:', e);
-    } finally {
-      setActivating(false);
+      console.error('[SceneButton]', e);
     }
+    setActivating(false);
   };
 
-  const label = String(
-    config.label || entity?.attributes?.friendly_name || config.entityId || 'Scene'
-  );
+  const iconPath = customIcon || (activated ? mdiCheck : mdiPlay);
+  const label = String(config.label || entity?.attributes?.friendly_name || config.entityId || 'Scene');
 
   return (
-    <button
+    <motion.button
       onClick={handleActivate}
-      disabled={activating || mode === 'edit'}
-      className="flex flex-col items-center justify-center w-full h-full rounded-card transition-all"
+      whileTap={mode !== 'edit' ? { scale: 0.9 } : undefined}
+      className={`flex ${compact ? 'flex-row gap-3 px-4' : 'flex-col'} items-center justify-center w-full h-full rounded-card transition-all`}
       style={{
         background: activated
-          ? 'var(--color-success-muted)'
+          ? `linear-gradient(135deg, ${typeof accent === 'string' && accent.startsWith('#') ? accent : 'var(--color-accent)'}22 0%, var(--color-surface-secondary) 100%)`
           : 'var(--color-surface-secondary)',
-        border: activated ? '1px solid rgba(34, 197, 94, 0.25)' : '1px solid transparent',
         cursor: mode === 'edit' ? 'grab' : 'pointer',
+        border: activated ? `1px solid ${typeof accent === 'string' && accent.startsWith('#') ? accent + '44' : 'var(--color-accent)'}` : '1px solid transparent',
       }}
     >
       <AnimatePresence mode="wait">
-        {activated ? (
-          <motion.div
-            key="check"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-          >
-            <Icon path={mdiCheck} size={1.8} color="var(--color-success)" />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="play"
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.5, opacity: 0 }}
-          >
-            <Icon
-              path={mdiPlay}
-              size={1.8}
-              color={activating ? 'var(--color-text-tertiary)' : 'var(--color-info)'}
-            />
-          </motion.div>
-        )}
+        <motion.div
+          key={activated ? 'check' : 'play'}
+          initial={{ scale: 0.5, opacity: 0, rotate: -90 }}
+          animate={{ scale: 1, opacity: 1, rotate: 0 }}
+          exit={{ scale: 0.5, opacity: 0, rotate: 90 }}
+          transition={{ duration: 0.2 }}
+        >
+          <Icon
+            path={iconPath}
+            size={compact ? 1.2 : 1.8}
+            color={activated ? 'var(--color-success)' : accent}
+          />
+        </motion.div>
       </AnimatePresence>
-      <span className="mt-2 font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
-        {label}
-      </span>
-    </button>
+      {!hideLabel && (
+        <span className={`${compact ? '' : 'mt-2'} font-medium`}
+          style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
+          {label}
+        </span>
+      )}
+    </motion.button>
   );
 }

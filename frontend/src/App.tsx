@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import PageTabs from './components/PageTabs';
 import DashboardSwitcher from './components/DashboardSwitcher';
 import ConnectionBanner from './components/ConnectionBanner';
+import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useTouchOptimization } from './hooks/useTouchOptimization';
@@ -77,6 +78,7 @@ export default function App() {
           <Canvas />
           {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}
         </div>
+        <StatusBar />
         {showSwitcher && <DashboardSwitcher onClose={() => setShowSwitcher(false)} />}
         <ToastContainer />
       </div>

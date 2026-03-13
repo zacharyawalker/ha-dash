@@ -1,67 +1,56 @@
 import { useHaEntity } from '../../hooks/useHaEntities';
 import { callService } from '../../api/client';
 import Icon from '@mdi/react';
-import { mdiRobot } from '../../utils/icons';
+import { mdiRobot, mdiRobotOff } from '@mdi/js';
+import { getIconByName } from '../../utils/haIcons';
+import { motion } from 'framer-motion';
 import type { WidgetProps } from '../../types/widget';
 
 export default function AutomationToggle({ config, mode }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
   const isOn = entity?.state === 'on';
-  const lastTriggered = entity?.attributes?.last_triggered as string | undefined;
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accent = (config.accentColor as string) || 'var(--color-accent)';
+  const hideLabel = config.hideLabel as boolean;
+  const compact = config.compactMode as boolean;
 
   const handleToggle = async () => {
     if (mode === 'edit' || !config.entityId) return;
     try {
       await callService('automation', 'toggle', { entity_id: config.entityId });
     } catch (e) {
-      console.error('[AutomationToggle] Failed:', e);
+      console.error('[AutomationToggle]', e);
     }
   };
 
-  const formatLastTriggered = (iso: string): string => {
-    try {
-      const d = new Date(iso);
-      const now = new Date();
-      const diff = now.getTime() - d.getTime();
-      if (diff < 60000) return 'Just now';
-      if (diff < 3600000) return `${Math.round(diff / 60000)}m ago`;
-      if (diff < 86400000) return `${Math.round(diff / 3600000)}h ago`;
-      return d.toLocaleDateString();
-    } catch {
-      return '';
-    }
-  };
-
+  const iconPath = customIcon || (isOn ? mdiRobot : mdiRobotOff);
   const label = String(config.label || entity?.attributes?.friendly_name || config.entityId || 'Automation');
 
   return (
-    <button
+    <motion.button
       onClick={handleToggle}
-      className="flex flex-col items-center justify-center w-full h-full rounded-card transition-all"
+      whileTap={mode !== 'edit' ? { scale: 0.95 } : undefined}
+      className={`flex ${compact ? 'flex-row gap-3 px-4' : 'flex-col'} items-center justify-center w-full h-full rounded-card transition-all`}
       style={{
-        background: isOn
-          ? 'var(--color-success-muted)'
-          : 'var(--color-surface-secondary)',
-        border: isOn ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid transparent',
+        background: isOn ? 'var(--color-surface-secondary)' : 'var(--color-surface-secondary)',
         cursor: mode === 'edit' ? 'grab' : 'pointer',
+        border: isOn ? `1px solid ${typeof accent === 'string' && accent.startsWith('#') ? accent + '44' : 'rgba(74, 158, 255, 0.2)'}` : '1px solid transparent',
       }}
     >
-      <Icon
-        path={mdiRobot}
-        size={1.6}
-        color={isOn ? 'var(--color-success)' : 'var(--color-text-tertiary)'}
-      />
-      <span className="mt-2 font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
-        {label}
-      </span>
-      <span className="mt-0.5" style={{ fontSize: 'var(--text-widget-label)', color: isOn ? 'var(--color-success)' : 'var(--color-text-tertiary)' }}>
-        {isOn ? 'Enabled' : 'Disabled'}
-      </span>
-      {lastTriggered && (
-        <span className="mt-0.5" style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}>
-          {formatLastTriggered(lastTriggered)}
-        </span>
+      <motion.div
+        animate={isOn ? { rotate: [0, 10, -10, 0] } : {}}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
+        <Icon path={iconPath} size={compact ? 1.2 : 1.8} color={isOn ? accent : 'var(--color-text-tertiary)'} />
+      </motion.div>
+      {!hideLabel && (
+        <div className={`${compact ? '' : 'mt-2'} text-center`}>
+          <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>{label}</span>
+          <span className="text-xs block mt-0.5" style={{ color: isOn ? accent : 'var(--color-text-tertiary)' }}>
+            {isOn ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
       )}
-    </button>
+    </motion.button>
   );
 }

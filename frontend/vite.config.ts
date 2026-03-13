@@ -20,6 +20,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'mdi-icons': ['@mdi/js'],
+          'framer': ['framer-motion'],
+        },
+      },
+    },
   },
   test: {
     globals: true,
