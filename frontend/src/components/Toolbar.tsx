@@ -54,6 +54,7 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
   const [addStep, setAddStep] = useState<'type' | 'entity' | 'templates' | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
   const domain = selectedType ? WIDGET_DOMAINS[selectedType] : undefined;
   const { entities } = useHaEntities(domain);
@@ -118,6 +119,7 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
                 onClick={() => {
                   setShowAddMenu(!showAddMenu);
                   setAddStep('type');
+                  setCategoryFilter(null);
                   setSearch('');
                 }}
                 className="flex items-center gap-1 px-3 py-1.5 text-sm rounded-lg transition-colors"
@@ -196,9 +198,31 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
                     </div>
                   )}
 
+                  {addStep === 'type' && !search && (
+                    <div className="flex gap-1 px-3 py-1.5 flex-wrap" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
+                      {[null, 'control', 'climate', 'display', 'layout'].map((cat) => (
+                        <button
+                          key={cat || 'all'}
+                          onClick={() => setCategoryFilter(cat)}
+                          className="px-2 py-0.5 text-xs rounded-full transition-colors"
+                          style={{
+                            background: categoryFilter === cat ? 'var(--color-accent-muted)' : 'var(--color-surface-tertiary)',
+                            color: categoryFilter === cat ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
+                          }}
+                        >
+                          {cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : 'All'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {addStep === 'type' &&
                     widgetDefinitions
-                    .filter((def) => !search || def.label.toLowerCase().includes(search.toLowerCase()) || def.category?.toLowerCase().includes(search.toLowerCase()))
+                    .filter((def) => {
+                      if (search) return def.label.toLowerCase().includes(search.toLowerCase()) || def.category?.toLowerCase().includes(search.toLowerCase());
+                      if (categoryFilter) return def.category === categoryFilter;
+                      return true;
+                    })
                     .map((def) => (
                       <button
                         key={def.type}
