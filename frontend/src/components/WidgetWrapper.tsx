@@ -105,6 +105,14 @@ function WidgetWrapperInner({ widget, mode, index = 0 }: Props) {
         width: widget.width,
         height: widget.height,
       }}
+      onDoubleClick={() => {
+        // Double-click in view mode → switch to edit and select widget
+        const store = useDashboardStore.getState();
+        if (store.mode === 'view') {
+          store.setMode('edit');
+          store.selectWidget(widget.id);
+        }
+      }}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 10 }}

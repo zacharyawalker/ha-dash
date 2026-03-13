@@ -1,6 +1,7 @@
 import { useDashboardStore } from '../store/dashboardStore';
 import WidgetWrapper from './WidgetWrapper';
 import { motion, AnimatePresence } from 'framer-motion';
+import AlignmentGuides from './AlignmentGuides';
 
 /** Page transition */
 const pageTransition = {
@@ -51,6 +52,7 @@ export default function Canvas() {
           {widgets.map((widget, i) => (
             <WidgetWrapper key={widget.id} widget={widget} mode={mode} index={i} />
           ))}
+          {mode === 'edit' && <AlignmentGuides />}
         </motion.div>
       </AnimatePresence>
 
