@@ -13,6 +13,8 @@ interface HistoryPoint {
  * Fetches entity state history from HA and renders a line/step chart.
  */
 export default function HistoryGraph({ config }: WidgetProps) {
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
   const { entity } = useHaEntity(config.entityId);
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [loading, setLoading] = useState(false);
@@ -106,7 +108,7 @@ export default function HistoryGraph({ config }: WidgetProps) {
     return (
       <div className="flex flex-col w-full h-full rounded-card p-3"
         style={{ background: 'var(--color-surface-secondary)' }}>
-        <span className="text-xs font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
+        {!hideLabel && <span className="text-xs font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>}
         <div className="flex-1 flex items-end gap-px overflow-hidden">
           {history.slice(-50).map((h, i) => {
             const isOn = h.state === 'on' || h.state === 'home' || h.state === 'open';
@@ -116,7 +118,7 @@ export default function HistoryGraph({ config }: WidgetProps) {
                 className="flex-1 rounded-sm min-w-[2px]"
                 style={{
                   height: isOn ? '100%' : '20%',
-                  background: isOn ? 'var(--color-accent)' : 'var(--color-surface-tertiary)',
+                  background: isOn ? (accentColor || 'var(--color-accent)') : 'var(--color-surface-tertiary)',
                   transition: 'height 0.2s ease',
                 }}
                 title={`${h.state} at ${new Date(h.last_changed).toLocaleTimeString()}`}
@@ -165,7 +167,7 @@ export default function HistoryGraph({ config }: WidgetProps) {
 
       {/* Header */}
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>
+        {!hideLabel && <span className="text-xs font-medium" style={{ color: 'var(--color-text-secondary)' }}>{label}</span>}
         <span className="text-sm font-bold" style={{ color: 'var(--color-text-primary)' }}>
           {currentValue != null ? Math.round(currentValue * 10) / 10 : '—'}{unit && ` ${unit}`}
         </span>
@@ -183,14 +185,14 @@ export default function HistoryGraph({ config }: WidgetProps) {
           />
         ))}
         {/* Fill */}
-        <path d={fillPath} fill="var(--color-accent)" opacity={0.15} />
+        <path d={fillPath} fill={accentColor || 'var(--color-accent)'} opacity={0.15} />
         {/* Line */}
-        <path d={pathParts.join(' ')} fill="none" stroke="var(--color-accent)" strokeWidth={2}
+        <path d={pathParts.join(' ')} fill="none" stroke={accentColor || 'var(--color-accent)'} strokeWidth={2}
           vectorEffect="non-scaling-stroke" />
         {/* Current value dot */}
         {currentValue != null && (
           <circle cx={toX(timeMax)} cy={toY(currentValue)} r={3}
-            fill="var(--color-accent)" stroke="var(--color-surface-secondary)" strokeWidth={1.5} />
+            fill={accentColor || 'var(--color-accent)'} stroke="var(--color-surface-secondary)" strokeWidth={1.5} />
         )}
       </svg>
 

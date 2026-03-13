@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Icon from '@mdi/react';
 import { mdiClockOutline } from '../../utils/icons';
+import { getIconByName } from '../../utils/haIcons';
 import type { WidgetProps } from '../../types/widget';
 
 export default function ClockWidget({ config }: WidgetProps) {
@@ -8,6 +9,8 @@ export default function ClockWidget({ config }: WidgetProps) {
   const showDate = config.showDate !== false;
   const showSeconds = config.showSeconds === true;
   const use24h = config.use24h === true;
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accentColor = config.accentColor as string | undefined;
 
   useEffect(() => {
     const interval = setInterval(() => setNow(new Date()), 1000);
@@ -33,9 +36,9 @@ export default function ClockWidget({ config }: WidgetProps) {
       style={{ background: 'var(--color-surface-secondary)' }}
     >
       {config.showIcon !== false && (
-        <Icon path={mdiClockOutline} size={0.8} color="var(--color-text-tertiary)" />
+        <Icon path={customIcon || mdiClockOutline} size={0.8} color={accentColor || 'var(--color-text-tertiary)'} />
       )}
-      <div className="text-2xl font-bold mt-1" style={{ color: 'var(--color-text-primary)', fontVariantNumeric: 'tabular-nums' }}>
+      <div className="text-2xl font-bold mt-1" style={{ color: accentColor || 'var(--color-text-primary)', fontVariantNumeric: 'tabular-nums' }}>
         {timeStr}
       </div>
       {showDate && (

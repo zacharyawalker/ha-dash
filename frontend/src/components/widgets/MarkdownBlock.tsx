@@ -9,7 +9,8 @@ export default function MarkdownBlock({ config }: WidgetProps) {
   const content = String(config.content || config.label || '');
   const fontSize = String(config.fontSize || '14');
   const textAlign = (config.textAlign as 'left' | 'center' | 'right') || 'center';
-  const textColor = String(config.textColor || 'var(--color-text-primary)');
+  const accentColor = config.accentColor as string | undefined;
+  const textColor = String(config.textColor || accentColor || 'var(--color-text-primary)');
   const bgColor = String(config.bgColor || 'transparent');
 
   return (

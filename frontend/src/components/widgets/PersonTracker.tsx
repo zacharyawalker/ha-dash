@@ -5,6 +5,8 @@ import type { WidgetProps } from '../../types/widget';
 
 export default function PersonTracker({ config }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
 
   if (!entity) {
     return (
@@ -35,13 +37,15 @@ export default function PersonTracker({ config }: WidgetProps) {
         <Icon path={mdiAccountCircle} size={2.5} color={isHome ? 'var(--color-success)' : 'var(--color-text-tertiary)'} />
       )}
 
-      <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
-        {label}
-      </span>
+      {!hideLabel && (
+        <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
+          {label}
+        </span>
+      )}
 
       <div className="flex items-center gap-1">
         <Icon path={isHome ? mdiHome : mdiMapMarker} size={0.5}
-          color={isHome ? 'var(--color-success)' : 'var(--color-text-secondary)'} />
+          color={accentColor || (isHome ? 'var(--color-success)' : 'var(--color-text-secondary)')} />
         <span className="text-xs capitalize" style={{ color: isHome ? 'var(--color-success)' : 'var(--color-text-secondary)' }}>
           {location}
         </span>

@@ -12,6 +12,8 @@ export default function GaugeWidget({ config }: WidgetProps) {
   const max = (config.max as number) || 100;
   const unit = String(config.unit || entity?.attributes?.unit_of_measurement || '');
   const label = String(config.label || entity?.attributes?.friendly_name || config.entityId || 'Gauge');
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
 
   // Normalize value to 0-1
   const normalized = Math.max(0, Math.min(1, (value - min) / (max - min)));
@@ -21,6 +23,7 @@ export default function GaugeWidget({ config }: WidgetProps) {
     const lowThreshold = (config.lowThreshold as number) ?? 30;
     const highThreshold = (config.highThreshold as number) ?? 70;
     const pct = normalized * 100;
+    if (accentColor) return accentColor;
     if (pct <= lowThreshold) return 'var(--color-success)';
     if (pct <= highThreshold) return 'var(--color-warning)';
     return 'var(--color-error)';
@@ -70,9 +73,11 @@ export default function GaugeWidget({ config }: WidgetProps) {
         )}
       </svg>
 
-      <span className="mt-1" style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-secondary)' }}>
-        {label}
-      </span>
+      {!hideLabel && (
+        <span className="mt-1" style={{ fontSize: 'var(--text-widget-label)', color: 'var(--color-text-secondary)' }}>
+          {label}
+        </span>
+      )}
     </div>
   );
 }

@@ -3,11 +3,15 @@ import { useHaEntity } from '../../hooks/useHaEntities';
 import { callService } from '../../api/client';
 import Icon from '@mdi/react';
 import { mdiLock, mdiLockOpen, mdiShieldAlert } from '@mdi/js';
+import { getIconByName } from '../../utils/haIcons';
 import type { WidgetProps } from '../../types/widget';
 
 export default function LockControl({ config, mode }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
   const [confirming, setConfirming] = useState(false);
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
 
   if (!entity) {
     return (
@@ -63,13 +67,15 @@ export default function LockControl({ config, mode }: WidgetProps) {
       }}
     >
       <Icon
-        path={isJammed ? mdiShieldAlert : isLocked ? mdiLock : mdiLockOpen}
+        path={customIcon || (isJammed ? mdiShieldAlert : isLocked ? mdiLock : mdiLockOpen)}
         size={1.8}
-        color={isJammed ? 'var(--color-error)' : isLocked ? 'var(--color-success)' : 'var(--color-error)'}
+        color={isJammed ? 'var(--color-error)' : accentColor || (isLocked ? 'var(--color-success)' : 'var(--color-error)')}
       />
-      <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
-        {label}
-      </span>
+      {!hideLabel && (
+        <span className="font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
+          {label}
+        </span>
+      )}
       <span className="text-xs" style={{ color: confirming ? 'var(--color-warning)' : isLocked ? 'var(--color-success)' : 'var(--color-error)' }}>
         {confirming ? 'Tap again to unlock' : isJammed ? 'Jammed!' : isLocked ? 'Locked' : 'Unlocked'}
       </span>

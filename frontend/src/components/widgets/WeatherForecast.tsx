@@ -3,6 +3,7 @@ import Icon from '@mdi/react';
 import { WEATHER_ICONS } from '../../utils/icons';
 import { mdiWeatherCloudy, mdiWaterPercent, mdiWeatherWindy } from '@mdi/js';
 import type { WidgetProps } from '../../types/widget';
+import { getIconByName } from '../../utils/haIcons';
 
 interface ForecastDay {
   datetime: string;
@@ -13,6 +14,9 @@ interface ForecastDay {
 
 export default function WeatherForecast({ config }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
 
   if (!entity) {
     return (
@@ -56,13 +60,15 @@ export default function WeatherForecast({ config }: WidgetProps) {
       style={{ background: 'var(--color-surface-secondary)' }}
     >
       {/* Header: location */}
-      <div className="text-xs font-medium mb-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>
-        {label}
-      </div>
+      {!hideLabel && (
+        <div className="text-xs font-medium mb-1 truncate" style={{ color: 'var(--color-text-secondary)' }}>
+          {label}
+        </div>
+      )}
 
       {/* Current conditions */}
       <div className="flex items-center gap-3 mb-2">
-        <Icon path={icon} size={2} color="var(--color-accent)" />
+        <Icon path={customIcon || icon} size={2} color={accentColor || 'var(--color-accent)'} />
         <div>
           <div className="text-3xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
             {temp != null ? `${Math.round(temp)}°` : '—'}

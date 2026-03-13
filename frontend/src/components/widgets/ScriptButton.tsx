@@ -3,12 +3,16 @@ import { callService } from '../../api/client';
 import { useHaEntity } from '../../hooks/useHaEntities';
 import Icon from '@mdi/react';
 import { mdiScript, mdiPlay } from '../../utils/icons';
+import { getIconByName } from '../../utils/haIcons';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WidgetProps } from '../../types/widget';
 
 export default function ScriptButton({ config, mode }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
   const [running, setRunning] = useState(false);
+  const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
+  const accentColor = config.accentColor as string | undefined;
+  const hideLabel = config.hideLabel as boolean;
 
   const handleRun = async () => {
     if (mode === 'edit' || !config.entityId) return;
@@ -32,9 +36,9 @@ export default function ScriptButton({ config, mode }: WidgetProps) {
       className="flex flex-col items-center justify-center w-full h-full rounded-card transition-all"
       style={{
         background: running || isOn
-          ? 'var(--color-accent-muted)'
+          ? (accentColor ? `${accentColor}18` : 'var(--color-accent-muted)')
           : 'var(--color-surface-secondary)',
-        border: running || isOn ? '1px solid var(--color-accent)' : '1px solid transparent',
+        border: running || isOn ? `1px solid ${accentColor || 'var(--color-accent)'}` : '1px solid transparent',
         cursor: mode === 'edit' ? 'grab' : 'pointer',
       }}
     >
@@ -51,15 +55,17 @@ export default function ScriptButton({ config, mode }: WidgetProps) {
           transition={{ duration: running ? 1 : 0.2, repeat: running ? Infinity : 0, ease: 'linear' }}
         >
           <Icon
-            path={running ? mdiScript : mdiPlay}
+            path={customIcon || (running ? mdiScript : mdiPlay)}
             size={1.8}
-            color={running ? 'var(--color-accent)' : 'var(--color-info)'}
+            color={running ? (accentColor || 'var(--color-accent)') : (accentColor || 'var(--color-info)')}
           />
         </motion.div>
       </AnimatePresence>
-      <span className="mt-2 font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
-        {label}
-      </span>
+      {!hideLabel && (
+        <span className="mt-2 font-medium" style={{ fontSize: 'var(--text-widget-title)', color: 'var(--color-text-primary)' }}>
+          {label}
+        </span>
+      )}
       {running && (
         <span className="text-xs mt-0.5" style={{ color: 'var(--color-accent)' }}>Running...</span>
       )}
