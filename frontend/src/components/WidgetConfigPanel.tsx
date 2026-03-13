@@ -3,8 +3,9 @@ import { useDashboardStore } from '../store/dashboardStore';
 import { getWidgetDefinition } from './widgets/WidgetRegistry';
 import EntityPicker from './EntityPicker';
 import Icon from '@mdi/react';
-import { mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline } from '@mdi/js';
-import type { WidgetConfig } from '../types/dashboard';
+import { mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline, mdiContentCopy } from '@mdi/js';
+import type { WidgetConfig, Widget } from '../types/dashboard';
+import { generateId } from '../utils/id';
 import type { ConfigField } from '../types/widget';
 
 /** Shared input styles using theme tokens */
@@ -136,7 +137,7 @@ function ConfigFieldInput({
  * Renders config fields dynamically based on the widget definition.
  */
 export default function WidgetConfigPanel() {
-  const { dashboard, selectedWidgetId, selectWidget, updateWidget, removeWidget } =
+  const { dashboard, selectedWidgetId, selectWidget, updateWidget, removeWidget, addWidget } =
     useDashboardStore();
 
   const widget = dashboard?.widgets.find((w) => w.id === selectedWidgetId);
@@ -308,9 +309,29 @@ export default function WidgetConfigPanel() {
               Apply
             </button>
             <button
+              onClick={() => {
+                if (!widget) return;
+                const dup: Widget = {
+                  ...widget,
+                  id: generateId(),
+                  x: widget.x + 30,
+                  y: widget.y + 30,
+                  config: { ...widget.config },
+                };
+                addWidget(dup);
+                selectWidget(dup.id);
+              }}
+              className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors"
+              style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-secondary)' }}
+              title="Duplicate widget"
+            >
+              <Icon path={mdiContentCopy} size={0.7} />
+            </button>
+            <button
               onClick={handleDelete}
               className="flex items-center justify-center gap-1.5 px-3 py-2 text-sm rounded-lg transition-colors"
               style={{ background: 'var(--color-error-muted)', color: 'var(--color-error)' }}
+              title="Delete widget"
             >
               <Icon path={mdiDelete} size={0.7} />
             </button>
