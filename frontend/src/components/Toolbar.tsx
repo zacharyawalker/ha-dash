@@ -19,6 +19,7 @@ import {
   mdiWeatherSunny,
 } from '@mdi/js';
 import { generateId } from '../utils/id';
+import { WIDGET_TEMPLATES, instantiateTemplate } from '../utils/widgetTemplates';
 
 /** Connection status indicator */
 function ConnectionBadge() {
@@ -50,7 +51,7 @@ function ConnectionBadge() {
 export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () => void } = {}) {
   const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled, theme, setTheme } = useDashboardStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
-  const [addStep, setAddStep] = useState<'type' | 'entity' | null>(null);
+  const [addStep, setAddStep] = useState<'type' | 'entity' | 'templates' | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
@@ -133,6 +134,54 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
                   className="absolute top-full left-0 mt-1 w-64 rounded-lg shadow-xl max-h-[70vh] overflow-y-auto"
                   style={{ zIndex: 9999, background: 'var(--color-surface-tertiary)', border: '1px solid var(--color-border-secondary)' }}
                 >
+                  {(addStep === 'type' || addStep === 'templates') && (
+                    <div className="flex gap-1 px-3 py-1.5" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
+                      <button
+                        onClick={() => setAddStep('type')}
+                        className="flex-1 text-xs py-1 rounded"
+                        style={{
+                          background: addStep === 'type' ? 'var(--color-accent-muted)' : 'transparent',
+                          color: addStep === 'type' ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
+                        }}
+                      >
+                        Widgets
+                      </button>
+                      <button
+                        onClick={() => setAddStep('templates')}
+                        className="flex-1 text-xs py-1 rounded"
+                        style={{
+                          background: addStep === 'templates' ? 'var(--color-accent-muted)' : 'transparent',
+                          color: addStep === 'templates' ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
+                        }}
+                      >
+                        Templates
+                      </button>
+                    </div>
+                  )}
+
+                  {addStep === 'templates' && (
+                    <div className="max-h-[60vh] overflow-y-auto" data-scrollable>
+                      {WIDGET_TEMPLATES.map((tpl) => (
+                        <button
+                          key={tpl.name}
+                          onClick={() => {
+                            const widgets = instantiateTemplate(tpl);
+                            widgets.forEach((w) => addWidget(w));
+                            setShowAddMenu(false);
+                            setAddStep(null);
+                          }}
+                          className="w-full text-left px-4 py-3 transition-colors"
+                          style={{ color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-border-primary)' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--color-surface-hover)')}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <span className="text-sm font-medium block">{tpl.name}</span>
+                          <span className="text-xs" style={{ color: 'var(--color-text-tertiary)' }}>{tpl.description}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {addStep === 'type' && (
                     <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
                       <input

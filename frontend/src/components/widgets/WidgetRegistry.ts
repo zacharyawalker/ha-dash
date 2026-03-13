@@ -38,6 +38,7 @@ import TimerWidget from './TimerWidget';
 import CounterWidget from './CounterWidget';
 import VacuumCard from './VacuumCard';
 import BatteryMonitor from './BatteryMonitor';
+import EnergyMonitor from './EnergyMonitor';
 import EntityList from './EntityList';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
@@ -74,6 +75,7 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'vacuum-card': VacuumCard,
   'battery-monitor': BatteryMonitor,
   'entity-list': EntityList,
+  'energy-monitor': EnergyMonitor,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -392,6 +394,25 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Energy ===
+  {
+    type: 'energy-monitor',
+    label: 'Energy Monitor',
+    icon: 'mdi:flash',
+    category: 'display',
+    defaultWidth: 350,
+    defaultHeight: 180,
+    minWidth: 250,
+    minHeight: 120,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'solarEntity', label: 'Solar Production', type: 'entity', domain: 'sensor' },
+      { key: 'gridEntity', label: 'Grid Import', type: 'entity', domain: 'sensor' },
+      { key: 'batteryEntity', label: 'Battery', type: 'entity', domain: 'sensor' },
+      { key: 'consumptionEntity', label: 'Home Consumption', type: 'entity', domain: 'sensor' },
     ],
   },
 
