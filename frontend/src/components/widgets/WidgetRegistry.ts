@@ -37,6 +37,8 @@ import AlarmPanel from './AlarmPanel';
 import TimerWidget from './TimerWidget';
 import CounterWidget from './CounterWidget';
 import VacuumCard from './VacuumCard';
+import BatteryMonitor from './BatteryMonitor';
+import EntityList from './EntityList';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'light-toggle': LightToggle,
@@ -70,6 +72,8 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'timer-widget': TimerWidget,
   'counter-widget': CounterWidget,
   'vacuum-card': VacuumCard,
+  'battery-monitor': BatteryMonitor,
+  'entity-list': EntityList,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -388,6 +392,38 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === Monitoring ===
+  {
+    type: 'battery-monitor',
+    label: 'Battery Monitor',
+    icon: 'mdi:battery-alert',
+    category: 'display',
+    defaultWidth: 250,
+    defaultHeight: 300,
+    minWidth: 180,
+    minHeight: 150,
+    defaultConfig: { label: '', threshold: 100 },
+    configFields: [
+      { key: 'threshold', label: 'Show below (%)', type: 'number', min: 1, max: 100, helpText: 'Only show devices below this battery level' },
+    ],
+  },
+  {
+    type: 'entity-list',
+    label: 'Entity List',
+    icon: 'mdi:view-list',
+    category: 'display',
+    defaultWidth: 280,
+    defaultHeight: 350,
+    minWidth: 200,
+    minHeight: 150,
+    defaultConfig: { label: '', filterDomain: '', maxItems: 20 },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
+      { key: 'filterDomain', label: 'Domain Filter', type: 'text', placeholder: 'light, sensor, switch...' },
+      { key: 'maxItems', label: 'Max Items', type: 'number', min: 1, max: 100 },
     ],
   },
 
