@@ -5,7 +5,10 @@ import EntityPicker from './EntityPicker';
 import { IconPickerButton } from './IconPicker';
 import ColorPicker from './ColorPicker';
 import Icon from '@mdi/react';
-import { mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline, mdiContentCopy } from '@mdi/js';
+import {
+  mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline, mdiContentCopy,
+  mdiLock, mdiLockOpen, mdiArrangeBringToFront, mdiArrangeSendToBack,
+} from '@mdi/js';
 import type { WidgetConfig, Widget } from '../types/dashboard';
 import { generateId } from '../utils/id';
 import type { ConfigField } from '../types/widget';
@@ -155,7 +158,7 @@ function ConfigFieldInput({
  * Renders config fields dynamically based on the widget definition.
  */
 export default function WidgetConfigPanel() {
-  const { dashboard, selectedWidgetId, selectWidget, updateWidget, removeWidget, addWidget } =
+  const { dashboard, selectedWidgetId, selectWidget, updateWidget, removeWidget, addWidget, bringToFront, sendToBack, toggleLock } =
     useDashboardStore();
 
   const widget = dashboard?.widgets.find((w) => w.id === selectedWidgetId);
@@ -303,6 +306,39 @@ export default function WidgetConfigPanel() {
             <div>Y: {Math.round(widget.y)}</div>
             <div>W: {widget.width}</div>
             <div>H: {widget.height}</div>
+          </div>
+          {/* Layer & Lock controls */}
+          <div className="flex items-center gap-2 mt-2">
+            <button
+              onClick={() => bringToFront(widget.id)}
+              className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-lg transition-colors"
+              style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-secondary)' }}
+              title="Bring to front"
+            >
+              <Icon path={mdiArrangeBringToFront} size={0.5} />
+              Front
+            </button>
+            <button
+              onClick={() => sendToBack(widget.id)}
+              className="flex-1 flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-lg transition-colors"
+              style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-secondary)' }}
+              title="Send to back"
+            >
+              <Icon path={mdiArrangeSendToBack} size={0.5} />
+              Back
+            </button>
+            <button
+              onClick={() => toggleLock(widget.id)}
+              className="flex items-center justify-center gap-1 px-2 py-1.5 text-xs rounded-lg transition-colors"
+              style={{
+                background: widget.locked ? 'var(--color-warning-muted)' : 'var(--color-surface-tertiary)',
+                color: widget.locked ? 'var(--color-warning)' : 'var(--color-text-secondary)',
+              }}
+              title={widget.locked ? 'Unlock widget' : 'Lock widget'}
+            >
+              <Icon path={widget.locked ? mdiLock : mdiLockOpen} size={0.5} />
+              {widget.locked ? 'Locked' : 'Lock'}
+            </button>
           </div>
         </div>
 

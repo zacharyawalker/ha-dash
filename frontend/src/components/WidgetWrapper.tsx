@@ -46,6 +46,8 @@ function WidgetWrapperInner({ widget, mode }: Props) {
       <Rnd
         position={{ x: widget.x, y: widget.y }}
         size={{ width: widget.width, height: widget.height }}
+        disableDragging={!!widget.locked}
+        enableResizing={!widget.locked}
         onMouseDown={() => {
           selectWidget(widget.id);
         }}
@@ -69,10 +71,12 @@ function WidgetWrapperInner({ widget, mode }: Props) {
         minWidth={80}
         minHeight={80}
         style={{
-          outline: isSelected ? '2px solid var(--color-accent)' : '1px dashed var(--color-border-secondary)',
+          outline: widget.locked
+            ? (isSelected ? '2px solid var(--color-warning)' : '1px dashed var(--color-warning)')
+            : (isSelected ? '2px solid var(--color-accent)' : '1px dashed var(--color-border-secondary)'),
           borderRadius: 'var(--radius-card)',
           overflow: 'visible',
-          zIndex: isSelected ? 10 : 1,
+          zIndex: isSelected ? 100 : (widget.zIndex || 1),
           opacity: dimmed ? 0.4 : 1,
         }}
       >

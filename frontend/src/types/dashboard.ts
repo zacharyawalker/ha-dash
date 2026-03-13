@@ -13,6 +13,10 @@ export interface Widget {
   width: number;
   height: number;
   config: WidgetConfig;
+  /** Z-index for layering order */
+  zIndex?: number;
+  /** Locked widgets can't be dragged/resized */
+  locked?: boolean;
 }
 
 /** A page within a dashboard (tabs) */
@@ -21,6 +25,10 @@ export interface DashboardPage {
   name: string;
   icon?: string;
   widgets: Widget[];
+  /** Background image URL for this page */
+  backgroundImage?: string;
+  /** Background color override */
+  backgroundColor?: string;
 }
 
 export interface Dashboard {

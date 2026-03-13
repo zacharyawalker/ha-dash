@@ -42,11 +42,17 @@ interface DashboardStore {
   updateWidget: (id: string, updates: Partial<Widget>) => void;
   removeWidget: (id: string) => void;
 
+  // Widget ordering
+  bringToFront: (id: string) => void;
+  sendToBack: (id: string) => void;
+  toggleLock: (id: string) => void;
+
   // Pages
   setActivePage: (index: number) => void;
   addPage: (name?: string) => void;
   removePage: (index: number) => void;
   renamePage: (index: number, name: string) => void;
+  updatePage: (index: number, updates: Partial<import('../types/dashboard').DashboardPage>) => void;
 
   // Grid
   setGridEnabled: (enabled: boolean) => void;
@@ -231,6 +237,44 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     set({ dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets }, ...h });
   },
 
+  bringToFront: (id) => {
+    const { dashboard, activePage } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    const maxZ = Math.max(0, ...pages[activePage].widgets.map((w) => w.zIndex || 0));
+    const newPages = pages.map((p, i) =>
+      i === activePage
+        ? { ...p, widgets: p.widgets.map((w) => (w.id === id ? { ...w, zIndex: maxZ + 1 } : w)) }
+        : p,
+    );
+    set({ dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets } });
+  },
+
+  sendToBack: (id) => {
+    const { dashboard, activePage } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    const minZ = Math.min(0, ...pages[activePage].widgets.map((w) => w.zIndex || 0));
+    const newPages = pages.map((p, i) =>
+      i === activePage
+        ? { ...p, widgets: p.widgets.map((w) => (w.id === id ? { ...w, zIndex: minZ - 1 } : w)) }
+        : p,
+    );
+    set({ dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets } });
+  },
+
+  toggleLock: (id) => {
+    const { dashboard, activePage } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) =>
+      i === activePage
+        ? { ...p, widgets: p.widgets.map((w) => (w.id === id ? { ...w, locked: !w.locked } : w)) }
+        : p,
+    );
+    set({ dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets } });
+  },
+
   removeWidget: (id) => {
     const { dashboard, activePage, history, historyIndex } = get();
     if (!dashboard) return;
@@ -297,6 +341,14 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     if (!dashboard) return;
     const pages = ensurePages(dashboard);
     const newPages = pages.map((p, i) => (i === index ? { ...p, name } : p));
+    set({ dashboard: { ...dashboard, pages: newPages } });
+  },
+
+  updatePage: (index, updates) => {
+    const { dashboard } = get();
+    if (!dashboard) return;
+    const pages = ensurePages(dashboard);
+    const newPages = pages.map((p, i) => (i === index ? { ...p, ...updates } : p));
     set({ dashboard: { ...dashboard, pages: newPages } });
   },
 

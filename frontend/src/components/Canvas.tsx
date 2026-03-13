@@ -12,7 +12,8 @@ export default function Canvas() {
   const pages = dashboard?.pages;
   const currentPage = pages?.[activePage];
   const widgets = currentPage?.widgets || dashboard?.widgets || [];
-  const bgImage = (currentPage as Record<string, unknown> | undefined)?.backgroundImage as string | undefined;
+  const bgImage = currentPage?.backgroundImage;
+  const bgColor = currentPage?.backgroundColor;
 
   const gridBackground = mode === 'edit' && gridEnabled
     ? {
@@ -27,7 +28,7 @@ export default function Canvas() {
       style={{
         background: bgImage
           ? `url(${bgImage}) center/cover no-repeat`
-          : 'var(--color-surface-page)',
+          : bgColor || 'var(--color-surface-page)',
         ...gridBackground,
       }}
       onMouseDown={(e) => {
