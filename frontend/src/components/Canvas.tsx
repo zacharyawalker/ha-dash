@@ -24,7 +24,8 @@ export default function Canvas() {
 
   return (
     <div
-      className="relative w-full flex-1 overflow-hidden"
+      data-canvas
+      className="relative w-full flex-1 overflow-auto"
       style={{
         background: bgImage
           ? `url(${bgImage}) center/cover no-repeat`

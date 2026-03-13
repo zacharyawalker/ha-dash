@@ -9,6 +9,8 @@ import PageTabs from './components/PageTabs';
 import DashboardSwitcher from './components/DashboardSwitcher';
 import ShortcutHelp from './components/ShortcutHelp';
 import ContextMenu from './components/ContextMenu';
+import Minimap from './components/Minimap';
+import PageSidebar from './components/PageSidebar';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -98,6 +100,8 @@ export default function App() {
         {showSwitcher && <DashboardSwitcher onClose={() => setShowSwitcher(false)} />}
         <ShortcutHelp open={showShortcuts} onClose={() => setShowShortcuts(false)} />
         <ContextMenu />
+        <Minimap />
+        <PageSidebar />
         <ToastContainer />
       </div>
     </ErrorBoundary>
