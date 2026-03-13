@@ -130,12 +130,38 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
 
   load: async (id = 'default') => {
     set({ loading: true, error: null });
+
+    // Try localStorage cache first for instant render
+    const cacheKey = `ha-dash-${id}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const dashboard = JSON.parse(cached);
+        const pages = ensurePages(dashboard);
+        const ap = dashboard.activePage || 0;
+        const theme = dashboard.theme || 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+        set({
+          dashboard: { ...dashboard, pages },
+          loading: false,
+          activePage: ap,
+          theme,
+          history: [{ pages: pages.map((p) => ({ ...p, widgets: [...p.widgets] })), activePage: ap, label: 'Load (cached)' }],
+          historyIndex: 0,
+        });
+      }
+    } catch { /* ignore cache errors */ }
+
     try {
       const dashboard = await loadDashboard(id);
       const pages = ensurePages(dashboard);
       const ap = dashboard.activePage || 0;
       const theme = dashboard.theme || 'dark';
       document.documentElement.setAttribute('data-theme', theme);
+
+      // Update localStorage cache
+      try { localStorage.setItem(cacheKey, JSON.stringify(dashboard)); } catch { /* quota */ }
+
       set({
         dashboard: { ...dashboard, pages },
         loading: false,
@@ -145,7 +171,12 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
         historyIndex: 0,
       });
     } catch (e) {
-      set({ error: (e as Error).message, loading: false });
+      // If we already loaded from cache, don't show error
+      if (!get().dashboard) {
+        set({ error: (e as Error).message, loading: false });
+      } else {
+        set({ loading: false });
+      }
     }
   },
 
@@ -163,6 +194,8 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
     };
     try {
       await saveDashboard(toSave.id, toSave);
+      // Update localStorage cache
+      try { localStorage.setItem(`ha-dash-${toSave.id}`, JSON.stringify(toSave)); } catch { /* quota */ }
     } catch (e) {
       set({ error: (e as Error).message });
     }

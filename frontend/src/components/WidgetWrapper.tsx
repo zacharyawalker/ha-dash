@@ -28,7 +28,9 @@ function useConditionalVisibility(widget: Widget, mode: 'edit' | 'view'): { visi
   return { visible: matches, dimmed: false };
 }
 
-export default function WidgetWrapper({ widget, mode }: Props) {
+import { memo } from 'react';
+
+function WidgetWrapperInner({ widget, mode }: Props) {
   const { updateWidget, selectedWidgetId, selectWidget, snapToGrid, gridEnabled, gridSize } =
     useDashboardStore();
   const { visible, dimmed } = useConditionalVisibility(widget, mode);
@@ -110,3 +112,18 @@ export default function WidgetWrapper({ widget, mode }: Props) {
     </div>
   );
 }
+
+/** Memoized widget wrapper — prevents re-renders when other widgets change */
+const WidgetWrapper = memo(WidgetWrapperInner, (prev, next) => {
+  return (
+    prev.mode === next.mode &&
+    prev.widget.id === next.widget.id &&
+    prev.widget.x === next.widget.x &&
+    prev.widget.y === next.widget.y &&
+    prev.widget.width === next.widget.width &&
+    prev.widget.height === next.widget.height &&
+    prev.widget.config === next.widget.config
+  );
+});
+
+export default WidgetWrapper;

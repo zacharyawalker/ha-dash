@@ -2,7 +2,7 @@
   "createdAt": "2026-03-12T00:00:00Z",
   "id": "default",
   "name": "My Dashboard",
-  "updatedAt": "2026-03-12T19:58:46.500262+00:00",
+  "updatedAt": "2026-03-13T01:27:11.445486+00:00",
   "widgets": [
     {
       "config": {
@@ -13,20 +13,78 @@
       "id": "test-light-1",
       "type": "light-toggle",
       "width": 140,
-      "x": 50,
-      "y": 50
+      "x": 68,
+      "y": 123
     },
     {
+      "config": {
+        "entityId": "climate.thermostat_hallway",
+        "label": "Thermostat - Hallway"
+      },
+      "height": 489,
       "id": "d5b68a8bf598b7e8d0f196f3ddde9ba6",
       "type": "climate-card",
-      "x": 234.73662628217534,
-      "y": 169.5443550786413,
-      "width": 260,
-      "height": 320,
+      "width": 365,
+      "x": 345,
+      "y": 149
+    },
+    {
+      "id": "f9c89d70d83aca7ea64c223c0ea7a49c",
+      "type": "dimmer-slider",
+      "x": 847.4046162350345,
+      "y": 205.9129889097148,
+      "width": 160,
+      "height": 200,
       "config": {
-        "label": "Thermostat - Hallway",
-        "entityId": "climate.thermostat_hallway"
+        "label": "Entry - Main Light",
+        "entityId": "light.entry_main_light"
       }
     }
-  ]
+  ],
+  "pages": [
+    {
+      "id": "1c97f21d14fe323487363d74543c8866",
+      "name": "Main",
+      "widgets": [
+        {
+          "config": {
+            "entityId": "light.entry_main_light",
+            "label": "Entry Light"
+          },
+          "height": 140,
+          "id": "test-light-1",
+          "type": "light-toggle",
+          "width": 140,
+          "x": 68,
+          "y": 123
+        },
+        {
+          "config": {
+            "entityId": "climate.thermostat_hallway",
+            "label": "Thermostat - Hallway"
+          },
+          "height": 489,
+          "id": "d5b68a8bf598b7e8d0f196f3ddde9ba6",
+          "type": "climate-card",
+          "width": 365,
+          "x": 345,
+          "y": 149
+        },
+        {
+          "id": "f9c89d70d83aca7ea64c223c0ea7a49c",
+          "type": "dimmer-slider",
+          "x": 847.4046162350345,
+          "y": 205.9129889097148,
+          "width": 160,
+          "height": 200,
+          "config": {
+            "label": "Entry - Main Light",
+            "entityId": "light.entry_main_light"
+          }
+        }
+      ]
+    }
+  ],
+  "activePage": 0,
+  "theme": "dark"
 }
