@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
 import { getWidgetDefinition } from './widgets/WidgetRegistry';
 import EntityPicker from './EntityPicker';
+import { IconPickerButton } from './IconPicker';
+import ColorPicker from './ColorPicker';
 import Icon from '@mdi/react';
 import { mdiClose, mdiDelete, mdiContentSave, mdiAlertCircleOutline, mdiContentCopy } from '@mdi/js';
 import type { WidgetConfig, Widget } from '../types/dashboard';
@@ -118,6 +120,22 @@ function ConfigFieldInput({
         </div>
       );
 
+    case 'icon':
+      return (
+        <IconPickerButton
+          value={(value as string) || ''}
+          onChange={(v) => onChange(v)}
+        />
+      );
+
+    case 'accent-color':
+      return (
+        <ColorPicker
+          value={(value as string) || ''}
+          onChange={(v) => onChange(v)}
+        />
+      );
+
     case 'text':
     default:
       return (
@@ -229,6 +247,51 @@ export default function WidgetConfigPanel() {
             )}
           </div>
         ))}
+
+        {/* Appearance */}
+        <div className="pt-2" style={{ borderTop: '1px solid var(--color-border-primary)' }}>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: 'var(--color-text-secondary)' }}>
+            Appearance
+          </label>
+          <div className="space-y-2">
+            <div>
+              <label className="block text-xs mb-1" style={{ color: 'var(--color-text-tertiary)' }}>Custom Icon</label>
+              <IconPickerButton
+                value={(localConfig.customIcon as string) || ''}
+                onChange={(v) => handleChange('customIcon', v)}
+              />
+            </div>
+            <div>
+              <label className="block text-xs mb-1" style={{ color: 'var(--color-text-tertiary)' }}>Accent Color</label>
+              <ColorPicker
+                value={(localConfig.accentColor as string) || ''}
+                onChange={(v) => handleChange('accentColor', v)}
+              />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--color-text-tertiary)' }}>
+                <input
+                  type="checkbox"
+                  checked={!!localConfig.hideLabel}
+                  onChange={(e) => handleChange('hideLabel', e.target.checked)}
+                  className="rounded"
+                />
+                Hide label
+              </label>
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: 'var(--color-text-tertiary)' }}>
+                <input
+                  type="checkbox"
+                  checked={!!localConfig.compactMode}
+                  onChange={(e) => handleChange('compactMode', e.target.checked)}
+                  className="rounded"
+                />
+                Compact mode
+              </label>
+            </div>
+          </div>
+        </div>
 
         {/* Position & size */}
         <div className="pt-2" style={{ borderTop: '1px solid var(--color-border-primary)' }}>

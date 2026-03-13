@@ -1,8 +1,18 @@
 import { useDashboardStore } from '../store/dashboardStore';
 import WidgetWrapper from './WidgetWrapper';
+import { motion, AnimatePresence } from 'framer-motion';
+
+/** Page transition */
+const pageTransition = {
+  duration: 0.25,
+};
 
 export default function Canvas() {
-  const { dashboard, mode, selectWidget, gridEnabled, gridSize } = useDashboardStore();
+  const { dashboard, mode, selectWidget, gridEnabled, gridSize, activePage } = useDashboardStore();
+  const pages = dashboard?.pages;
+  const currentPage = pages?.[activePage];
+  const widgets = currentPage?.widgets || dashboard?.widgets || [];
+  const bgImage = (currentPage as Record<string, unknown> | undefined)?.backgroundImage as string | undefined;
 
   const gridBackground = mode === 'edit' && gridEnabled
     ? {
@@ -15,19 +25,35 @@ export default function Canvas() {
     <div
       className="relative w-full flex-1 overflow-hidden"
       style={{
-        background: 'var(--color-surface-page)',
+        background: bgImage
+          ? `url(${bgImage}) center/cover no-repeat`
+          : 'var(--color-surface-page)',
         ...gridBackground,
       }}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) selectWidget(null);
       }}
     >
-      {dashboard?.widgets.map((widget) => (
-        <WidgetWrapper key={widget.id} widget={widget} mode={mode} />
-      ))}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`page-${activePage}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={pageTransition}
+          className="absolute inset-0"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) selectWidget(null);
+          }}
+        >
+          {widgets.map((widget) => (
+            <WidgetWrapper key={widget.id} widget={widget} mode={mode} />
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
-      {dashboard?.widgets.length === 0 && mode === 'edit' && (
-        <div className="absolute inset-0 flex items-center justify-center">
+      {widgets.length === 0 && mode === 'edit' && (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
           <p style={{ color: 'var(--color-text-tertiary)' }}>Click "Add Widget" in the toolbar to get started</p>
         </div>
       )}

@@ -10,7 +10,7 @@ export interface WidgetProps {
  * Each widget type declares what fields appear in the config panel.
  * The panel renders them dynamically — no widget-specific code needed.
  */
-export type ConfigFieldType = 'text' | 'number' | 'entity' | 'select' | 'toggle' | 'color';
+export type ConfigFieldType = 'text' | 'number' | 'entity' | 'select' | 'toggle' | 'color' | 'icon' | 'accent-color';
 
 export interface ConfigFieldBase {
   /** Key in WidgetConfig to read/write */
@@ -66,13 +66,23 @@ export interface ColorConfigField extends ConfigFieldBase {
   type: 'color';
 }
 
+export interface IconConfigField extends ConfigFieldBase {
+  type: 'icon';
+}
+
+export interface AccentColorConfigField extends ConfigFieldBase {
+  type: 'accent-color';
+}
+
 export type ConfigField =
   | TextConfigField
   | NumberConfigField
   | EntityConfigField
   | SelectConfigField
   | ToggleConfigField
-  | ColorConfigField;
+  | ColorConfigField
+  | IconConfigField
+  | AccentColorConfigField;
 
 /**
  * Widget definition — declares everything about a widget type.
