@@ -61,6 +61,12 @@ export async function createDashboard(id: string, name: string) {
   } as import('../types/dashboard').Dashboard);
 }
 
+export async function getHistory(entityId: string, hours = 24) {
+  return fetchJson<{ state: string; last_changed: string }[]>(
+    `/ha/history/${entityId}?hours=${hours}`
+  );
+}
+
 // HA state type
 export interface HaState {
   entity_id: string;

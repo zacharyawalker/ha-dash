@@ -60,3 +60,32 @@ def call_service(domain, service):
         return jsonify(resp.json()), resp.status_code
     except requests.RequestException as e:
         return jsonify({"error": str(e)}), 502
+
+
+@ha_proxy_bp.route("/history/<entity_id>", methods=["GET"])
+def get_history(entity_id):
+    """Get entity history from HA.
+    Query params: hours (default 24)
+    """
+    hours = request.args.get("hours", "24")
+    try:
+        from datetime import datetime, timedelta, timezone
+
+        end_time = datetime.now(timezone.utc)
+        start_time = end_time - timedelta(hours=int(hours))
+        params = {
+            "filter_entity_id": entity_id,
+            "minimal_response": "",
+            "significant_changes_only": "",
+            "no_attributes": "",
+        }
+
+        url = _api_url(f"/history/period/{start_time.isoformat()}")
+        resp = requests.get(url, headers=_get_headers(), params=params, timeout=30)
+        data = resp.json()
+        # HA returns [[states]] — unwrap the outer array
+        if data and isinstance(data, list) and len(data) > 0:
+            return jsonify(data[0]), resp.status_code
+        return jsonify([]), 200
+    except requests.RequestException as e:
+        return jsonify({"error": str(e)}), 502

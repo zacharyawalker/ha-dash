@@ -27,6 +27,7 @@ import FanControl from './FanControl';
 import PersonTracker from './PersonTracker';
 import GaugeWidget from './GaugeWidget';
 import IframeEmbed from './IframeEmbed';
+import HistoryGraph from './HistoryGraph';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'light-toggle': LightToggle,
@@ -50,6 +51,7 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'person-tracker': PersonTracker,
   'gauge-widget': GaugeWidget,
   'iframe-embed': IframeEmbed,
+  'history-graph': HistoryGraph,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -368,6 +370,29 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
       { key: 'lowThreshold', label: 'Low Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Green below this' },
       { key: 'highThreshold', label: 'High Threshold (%)', type: 'number', min: 0, max: 100, helpText: 'Red above this' },
+    ],
+  },
+
+  // === History ===
+  {
+    type: 'history-graph',
+    label: 'History Graph',
+    icon: 'mdi:chart-line',
+    category: 'display',
+    defaultWidth: 320,
+    defaultHeight: 200,
+    minWidth: 200,
+    minHeight: 120,
+    defaultConfig: { label: '', hours: 24, chartType: 'line' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+      { key: 'hours', label: 'Time Range (hours)', type: 'number', min: 1, max: 168 },
+      { key: 'chartType', label: 'Chart Type', type: 'select', options: [
+        { label: 'Line', value: 'line' },
+        { label: 'Step', value: 'step' },
+      ]},
+      { key: 'unit', label: 'Unit', type: 'text', placeholder: 'Auto from entity' },
     ],
   },
 

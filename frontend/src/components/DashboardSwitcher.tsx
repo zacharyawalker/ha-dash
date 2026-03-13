@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
 import { listDashboards, deleteDashboard, createDashboard } from '../api/client';
 import Icon from '@mdi/react';
-import { mdiViewDashboard, mdiPlus, mdiDelete, mdiClose } from '@mdi/js';
+import { mdiViewDashboard, mdiPlus, mdiDelete, mdiClose, mdiDownload, mdiUpload } from '@mdi/js';
 import { generateId } from '../utils/id';
 
 interface DashInfo {
@@ -143,6 +143,57 @@ export default function DashboardSwitcher({ onClose }: { onClose: () => void }) 
               New Dashboard
             </button>
           )}
+
+          {/* Import / Export */}
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => {
+                if (!dashboard) return;
+                const blob = new Blob([JSON.stringify(dashboard, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${dashboard.id}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors"
+              style={{ color: 'var(--color-text-secondary)', background: 'var(--color-surface-tertiary)' }}
+            >
+              <Icon path={mdiDownload} size={0.6} />
+              Export
+            </button>
+            <label
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer"
+              style={{ color: 'var(--color-text-secondary)', background: 'var(--color-surface-tertiary)' }}
+            >
+              <Icon path={mdiUpload} size={0.6} />
+              Import
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  try {
+                    const text = await file.text();
+                    const imported = JSON.parse(text);
+                    if (!imported.id || !imported.name) {
+                      alert('Invalid dashboard file');
+                      return;
+                    }
+                    const { saveDashboard } = await import('../api/client');
+                    await saveDashboard(imported.id, imported);
+                    await load(imported.id);
+                    onClose();
+                  } catch (err) {
+                    alert('Failed to import: ' + err);
+                  }
+                }}
+              />
+            </label>
+          </div>
         </div>
       </div>
     </div>

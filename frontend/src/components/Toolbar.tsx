@@ -131,8 +131,24 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
                   className="absolute top-full left-0 mt-1 w-64 rounded-lg shadow-xl z-50 max-h-80 overflow-y-auto"
                   style={{ background: 'var(--color-surface-tertiary)', border: '1px solid var(--color-border-secondary)' }}
                 >
+                  {addStep === 'type' && (
+                    <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
+                      <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Search widgets..."
+                        autoFocus
+                        className="w-full px-3 py-1.5 text-sm rounded-lg outline-none"
+                        style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-primary)' }}
+                      />
+                    </div>
+                  )}
+
                   {addStep === 'type' &&
-                    widgetDefinitions.map((def) => (
+                    widgetDefinitions
+                    .filter((def) => !search || def.label.toLowerCase().includes(search.toLowerCase()) || def.category?.toLowerCase().includes(search.toLowerCase()))
+                    .map((def) => (
                       <button
                         key={def.type}
                         onClick={() => {
