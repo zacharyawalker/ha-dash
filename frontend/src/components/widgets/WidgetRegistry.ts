@@ -49,6 +49,7 @@ import GlanceCard from './GlanceCard';
 import EntityStatus from './EntityStatus';
 import ConditionalCard from './ConditionalCard';
 import NumberInput from './NumberInput';
+import DateTimeWidget from './DateTimeWidget';
 import TodoList from './TodoList';
 import EntityList from './EntityList';
 
@@ -97,6 +98,7 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'entity-status': EntityStatus,
   'conditional-card': ConditionalCard,
   'number-input': NumberInput,
+  'date-time': DateTimeWidget,
   'todo-list': TodoList,
 };
 
@@ -494,6 +496,40 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'entity6', label: 'Entity 6', type: 'entity' },
       { key: 'entity7', label: 'Entity 7', type: 'entity' },
       { key: 'entity8', label: 'Entity 8', type: 'entity' },
+    ],
+  },
+
+  // === Date/Time ===
+  {
+    type: 'date-time',
+    label: 'Date & Time',
+    icon: 'mdi:calendar-clock',
+    category: 'display',
+    defaultWidth: 260,
+    defaultHeight: 100,
+    minWidth: 160,
+    minHeight: 70,
+    defaultConfig: { label: '', showDate: true, use24h: false, showSeconds: false },
+    configFields: [
+      { key: 'showDate', label: 'Show Date', type: 'toggle' },
+      { key: 'use24h', label: '24-Hour Format', type: 'toggle' },
+      { key: 'showSeconds', label: 'Show Seconds', type: 'toggle' },
+    ],
+  },
+
+  // === Todo List ===
+  {
+    type: 'todo-list',
+    label: 'Todo List',
+    icon: 'mdi:checkbox-marked',
+    category: 'display',
+    defaultWidth: 260,
+    defaultHeight: 300,
+    minWidth: 180,
+    minHeight: 200,
+    defaultConfig: { label: 'To Do', todos: '[]' },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
     ],
   },
 
