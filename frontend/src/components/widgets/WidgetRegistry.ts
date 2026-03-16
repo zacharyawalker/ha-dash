@@ -51,6 +51,8 @@ import ConditionalCard from './ConditionalCard';
 import NumberInput from './NumberInput';
 import DateTimeWidget from './DateTimeWidget';
 import TodoList from './TodoList';
+import VacuumControl from './VacuumControl';
+import StatusBadge from './StatusBadge';
 import EntityList from './EntityList';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
@@ -100,6 +102,8 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'number-input': NumberInput,
   'date-time': DateTimeWidget,
   'todo-list': TodoList,
+  'vacuum-control': VacuumControl,
+  'status-badge': StatusBadge,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -496,6 +500,39 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'entity6', label: 'Entity 6', type: 'entity' },
       { key: 'entity7', label: 'Entity 7', type: 'entity' },
       { key: 'entity8', label: 'Entity 8', type: 'entity' },
+    ],
+  },
+
+  // === Vacuum Control ===
+  {
+    type: 'vacuum-control',
+    label: 'Vacuum Robot',
+    icon: 'mdi:robot-vacuum',
+    category: 'control',
+    defaultWidth: 200,
+    defaultHeight: 240,
+    minWidth: 160,
+    minHeight: 180,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Vacuum Entity', type: 'entity', domain: 'vacuum', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Status Badge ===
+  {
+    type: 'status-badge',
+    label: 'Status Badge',
+    icon: 'mdi:circle',
+    category: 'display',
+    defaultWidth: 100,
+    defaultHeight: 40,
+    minWidth: 60,
+    minHeight: 30,
+    defaultConfig: {},
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', required: true },
     ],
   },
 
