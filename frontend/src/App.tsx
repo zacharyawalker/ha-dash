@@ -13,6 +13,7 @@ import Minimap from './components/Minimap';
 import PageSidebar from './components/PageSidebar';
 import WelcomeOverlay from './components/WelcomeOverlay';
 import QuickSearch from './components/QuickSearch';
+import WidgetPalette from './components/WidgetPalette';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -96,6 +97,7 @@ export default function App() {
           <PageTabs />
         </div>
         <div className="flex flex-1 overflow-hidden" style={{ marginTop: toolbarVisible ? 0 : '-88px', transition: 'margin-top 0.3s ease' }}>
+          <WidgetPalette />
           <Canvas />
           {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}
         </div>
