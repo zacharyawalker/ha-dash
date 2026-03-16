@@ -1,21 +1,22 @@
 name: "HA Dash"
-description: "A flexible, customizable Home Assistant dashboard"
-version: "2.0.0"
+description: "Free-form drag-and-drop dashboard for Home Assistant with 50+ widget types"
+version: "2.1.0"
 slug: "ha-dash"
 url: "https://github.com/zacharyawalker/ha-dash"
+image: "ghcr.io/zacharyawalker/ha-dash-{arch}"
 
 arch:
   - amd64
   - aarch64
   - armv7
 
-# Ingress settings (accessible via HA sidebar)
+# Ingress — accessible via HA sidebar
 ingress: true
 ingress_port: 8099
 panel_icon: "mdi:view-dashboard"
 panel_title: "HA Dash"
 
-# No external port needed with ingress, but allow it for development
+# External port for direct access (optional, disabled by default)
 ports:
   8099/tcp: null
 ports_description:
@@ -25,9 +26,18 @@ init: false
 startup: "application"
 boot: "auto"
 
-# API access
+# HA API access
 hassio_api: true
 homeassistant_api: true
+auth_api: true
 
-options: {}
-schema: {}
+# Persistent data directory
+map:
+  - config:rw
+  - share:rw
+
+options:
+  log_level: "info"
+
+schema:
+  log_level: "list(debug|info|warning|error)"

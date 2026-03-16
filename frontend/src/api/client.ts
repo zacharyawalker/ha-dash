@@ -1,4 +1,8 @@
-const BASE = './api';
+/** Derive API base from current page location (works with HA ingress and standalone) */
+const BASE = (() => {
+  const path = window.location.pathname.replace(/\/+$/, '');
+  return `${path}/api`;
+})();
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(`${BASE}${url}`, {

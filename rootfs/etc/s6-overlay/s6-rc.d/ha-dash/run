@@ -1,8 +1,44 @@
 #!/usr/bin/with-contenv bashio
 
-bashio::log.info "Starting HA Dash..."
+bashio::log.info "Starting HA Dash v2.1.0..."
 
+# Get ingress port from HA
 INGRESS_PORT=$(bashio::addon.ingress_port)
 
+# Export environment variables for the backend
+export FRONTEND_DIR="/srv/frontend/dist"
+export DASHBOARDS_DIR="/data/dashboards"
+export HA_URL="http://supervisor/core"
+export FLASK_ENV="production"
+
+# SUPERVISOR_TOKEN is automatically injected by HA add-on system
+bashio::log.info "Ingress port: ${INGRESS_PORT}"
+bashio::log.info "Frontend: ${FRONTEND_DIR}"
+bashio::log.info "Dashboards: ${DASHBOARDS_DIR}"
+bashio::log.info "HA API: ${HA_URL}"
+
+# Check if SUPERVISOR_TOKEN is available
+if bashio::var.has_value "${SUPERVISOR_TOKEN}"; then
+    bashio::log.info "Supervisor token: available"
+else
+    bashio::log.warning "Supervisor token: NOT FOUND — HA API calls will fail"
+fi
+
+# Run with gunicorn for production (falls back to Flask dev if not installed)
 cd /srv/backend
-exec python3 -m flask run --host=0.0.0.0 --port="${INGRESS_PORT}"
+
+if command -v gunicorn > /dev/null 2>&1; then
+    bashio::log.info "Starting with gunicorn..."
+    exec gunicorn \
+        --bind "0.0.0.0:${INGRESS_PORT}" \
+        --worker-class gevent \
+        --workers 1 \
+        --timeout 120 \
+        --access-logfile - \
+        --error-logfile - \
+        --log-level info \
+        "app:app"
+else
+    bashio::log.info "Starting with Flask..."
+    exec python3 -c "from app import app; app.run(host='0.0.0.0', port=${INGRESS_PORT}, debug=False)"
+fi

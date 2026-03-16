@@ -1,0 +1,11 @@
+node_modules
+frontend/node_modules
+frontend/dist
+.git
+.github
+*.md
+!INSTALL.md
+data/dashboards/*.json
+__pycache__
+*.pyc
+.env
