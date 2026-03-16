@@ -47,6 +47,8 @@ import ThermostatMini from './ThermostatMini';
 import ProgressBar from './ProgressBar';
 import GlanceCard from './GlanceCard';
 import EntityStatus from './EntityStatus';
+import ConditionalCard from './ConditionalCard';
+import NumberInput from './NumberInput';
 import TodoList from './TodoList';
 import EntityList from './EntityList';
 
@@ -93,6 +95,8 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'progress-bar': ProgressBar,
   'glance-card': GlanceCard,
   'entity-status': EntityStatus,
+  'conditional-card': ConditionalCard,
+  'number-input': NumberInput,
   'todo-list': TodoList,
 };
 
@@ -490,6 +494,43 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'entity6', label: 'Entity 6', type: 'entity' },
       { key: 'entity7', label: 'Entity 7', type: 'entity' },
       { key: 'entity8', label: 'Entity 8', type: 'entity' },
+    ],
+  },
+
+  // === Conditional Card ===
+  {
+    type: 'conditional-card',
+    label: 'Conditional Card',
+    icon: 'mdi:eye',
+    category: 'display',
+    defaultWidth: 200,
+    defaultHeight: 160,
+    minWidth: 140,
+    minHeight: 100,
+    defaultConfig: { label: '', targetState: 'on', invertCondition: false, message: '' },
+    configFields: [
+      { key: 'entityId', label: 'Entity', type: 'entity', required: true },
+      { key: 'targetState', label: 'Target State', type: 'text', placeholder: 'on' },
+      { key: 'invertCondition', label: 'Invert (show when NOT target)', type: 'toggle' },
+      { key: 'message', label: 'Display Message', type: 'text', placeholder: 'Door is open!' },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Number Input ===
+  {
+    type: 'number-input',
+    label: 'Number Input',
+    icon: 'mdi:numeric',
+    category: 'control',
+    defaultWidth: 200,
+    defaultHeight: 200,
+    minWidth: 160,
+    minHeight: 160,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Input Number Entity', type: 'entity', domain: 'input_number', required: true },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
     ],
   },
 
