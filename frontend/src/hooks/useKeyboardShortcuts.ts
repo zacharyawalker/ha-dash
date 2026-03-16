@@ -41,6 +41,17 @@ export function useKeyboardShortcuts() {
       } else if (ctrl && e.key === 'g') {
         e.preventDefault();
         store.setGridEnabled(!store.gridEnabled);
+      } else if (ctrl && e.key === 'a') {
+        e.preventDefault();
+        // Select all widgets on current page
+        const pages = store.dashboard?.pages;
+        const widgets = pages?.[store.activePage]?.widgets || [];
+        if (widgets.length > 0) {
+          store.selectWidget(widgets[0].id);
+          for (let i = 1; i < widgets.length; i++) {
+            store.selectWidget(widgets[i].id, true);
+          }
+        }
       }
     };
 

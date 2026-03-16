@@ -2,6 +2,7 @@ import { useDashboardStore } from '../store/dashboardStore';
 import WidgetWrapper from './WidgetWrapper';
 import { motion, AnimatePresence } from 'framer-motion';
 import AlignmentGuides from './AlignmentGuides';
+import WidgetSizeLabel from './WidgetSizeLabel';
 import { useResponsiveScale } from '../hooks/useResponsiveScale';
 import { usePinchZoom } from '../hooks/usePinchZoom';
 
@@ -67,6 +68,7 @@ export default function Canvas() {
             <WidgetWrapper key={widget.id} widget={widget} mode={mode} index={i} />
           ))}
           {mode === 'edit' && <AlignmentGuides />}
+          {mode === 'edit' && <WidgetSizeLabel />}
         </motion.div>
       </AnimatePresence>
 

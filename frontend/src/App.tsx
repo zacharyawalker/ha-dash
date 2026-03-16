@@ -12,6 +12,7 @@ import ContextMenu from './components/ContextMenu';
 import Minimap from './components/Minimap';
 import PageSidebar from './components/PageSidebar';
 import WelcomeOverlay from './components/WelcomeOverlay';
+import QuickSearch from './components/QuickSearch';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -104,6 +105,7 @@ export default function App() {
         <ContextMenu />
         <Minimap />
         <PageSidebar />
+        <QuickSearch />
         {showWelcome && (
           <WelcomeOverlay onDismiss={() => { setShowWelcome(false); localStorage.setItem('ha-dash-welcomed', '1'); }} />
         )}

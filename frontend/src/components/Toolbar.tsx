@@ -13,6 +13,7 @@ import {
   mdiUndo,
   mdiRedo,
   mdiGrid,
+  mdiViewGrid,
   mdiWeatherNight,
   mdiFullscreen,
   mdiFullscreenExit,
@@ -49,7 +50,7 @@ function ConnectionBadge() {
 }
 
 export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () => void } = {}) {
-  const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled, theme, setTheme } = useDashboardStore();
+  const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled, autoArrange, theme, setTheme, activePage } = useDashboardStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [addStep, setAddStep] = useState<'type' | 'entity' | 'templates' | null>(null);
   const [selectedType, setSelectedType] = useState<string | null>(null);
@@ -111,6 +112,12 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
         </button>
 
         <ConnectionBadge />
+
+        {mode === 'edit' && (
+          <span className="text-xs px-1.5 py-0.5 rounded" style={{ background: 'var(--color-surface-tertiary)', color: 'var(--color-text-tertiary)' }}>
+            {(dashboard?.pages?.[activePage]?.widgets || []).length} widgets
+          </span>
+        )}
 
         {mode === 'edit' && (
           <>
@@ -347,6 +354,16 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
               title={`Grid snap: ${gridEnabled ? 'ON' : 'OFF'} (Ctrl+G)`}
             >
               <Icon path={mdiGrid} size={0.7} />
+            </button>
+
+            {/* Auto-arrange */}
+            <button
+              onClick={autoArrange}
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ color: 'var(--color-text-tertiary)', background: 'var(--color-surface-tertiary)' }}
+              title="Auto-arrange widgets"
+            >
+              <Icon path={mdiViewGrid} size={0.7} />
             </button>
           </>
         )}

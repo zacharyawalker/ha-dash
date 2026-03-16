@@ -70,6 +70,9 @@ interface DashboardStore {
   pasteWidget: () => void;
   deleteSelected: () => void;
 
+  // Layout
+  autoArrange: () => void;
+
   // Theme
   setTheme: (theme: 'dark' | 'light') => void;
 }
@@ -419,6 +422,45 @@ export const useDashboardStore = create<DashboardStore>((set, get) => ({
       dashboard: { ...dashboard, pages: newPages, widgets: newPages[activePage].widgets },
       selectedWidgetId: null,
       selectedWidgetIds: new Set(),
+      ...h,
+    });
+  },
+
+  // Layout — auto-arrange widgets in a tidy grid
+  autoArrange: () => {
+    const { dashboard, activePage, history, historyIndex } = get();
+    if (!dashboard || !dashboard.pages) return;
+    const pages = [...dashboard.pages];
+    const widgets = [...pages[activePage].widgets];
+    if (widgets.length === 0) return;
+
+    const padding = 20;
+    const gap = 16;
+    let x = padding;
+    let y = padding;
+    let rowHeight = 0;
+    const canvasWidth = 1920;
+
+    const sorted = widgets
+      .map((w, i) => ({ ...w, _origIdx: i }))
+      .sort((a, b) => a.y - b.y || a.x - b.x);
+
+    const arranged = sorted.map((w) => {
+      if (x + w.width > canvasWidth - padding) {
+        x = padding;
+        y += rowHeight + gap;
+        rowHeight = 0;
+      }
+      const newW = { ...w, x, y };
+      x += w.width + gap;
+      rowHeight = Math.max(rowHeight, w.height);
+      return newW;
+    });
+
+    pages[activePage] = { ...pages[activePage], widgets: arranged };
+    const h = pushHistory(history, historyIndex, pages, activePage, 'Auto-arrange');
+    set({
+      dashboard: { ...dashboard, pages, widgets: pages[activePage].widgets },
       ...h,
     });
   },
