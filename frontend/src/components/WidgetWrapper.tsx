@@ -32,7 +32,7 @@ function useConditionalVisibility(widget: Widget, mode: 'edit' | 'view'): { visi
 import { memo } from 'react';
 
 function WidgetWrapperInner({ widget, mode, index = 0 }: Props) {
-  const { updateWidget, selectedWidgetId, selectWidget, snapToGrid, gridEnabled, gridSize } =
+  const { updateWidget, selectedWidgetId, selectedWidgetIds, selectWidget, snapToGrid, gridEnabled, gridSize } =
     useDashboardStore();
   const { visible, dimmed } = useConditionalVisibility(widget, mode);
 
@@ -41,6 +41,7 @@ function WidgetWrapperInner({ widget, mode, index = 0 }: Props) {
   if (!visible) return null;
 
   const isSelected = selectedWidgetId === widget.id;
+  const isInMultiSelect = selectedWidgetIds.has(widget.id);
 
   if (mode === 'edit') {
     return (
@@ -49,8 +50,8 @@ function WidgetWrapperInner({ widget, mode, index = 0 }: Props) {
         size={{ width: widget.width, height: widget.height }}
         disableDragging={!!widget.locked}
         enableResizing={!widget.locked}
-        onMouseDown={() => {
-          selectWidget(widget.id);
+        onMouseDown={(e) => {
+          selectWidget(widget.id, e.shiftKey);
         }}
         onDragStop={(_e, d) => {
           updateWidget(widget.id, {
@@ -74,7 +75,7 @@ function WidgetWrapperInner({ widget, mode, index = 0 }: Props) {
         style={{
           outline: widget.locked
             ? (isSelected ? '2px solid var(--color-warning)' : '1px dashed var(--color-warning)')
-            : (isSelected ? '2px solid var(--color-accent)' : '1px dashed var(--color-border-secondary)'),
+            : (isSelected ? '2px solid var(--color-accent)' : isInMultiSelect ? '2px solid var(--color-accent-muted)' : '1px dashed var(--color-border-secondary)'),
           borderRadius: 'var(--radius-card)',
           overflow: 'visible',
           zIndex: isSelected ? 100 : (widget.zIndex || 1),
