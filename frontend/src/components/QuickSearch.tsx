@@ -6,6 +6,7 @@ import { mdiMagnify, mdiClose, mdiPlus } from '@mdi/js';
 import { getEntityIcon } from '../utils/icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { widgetDefinitions } from './widgets/WidgetRegistry';
+import { generateId } from '../utils/id';
 
 /**
  * Quick search overlay — Ctrl+K to open.
@@ -86,7 +87,7 @@ export default function QuickSearch() {
 
     const def = widgetDefinitions.find((d) => d.type === getWidgetType(domain));
     addWidget({
-      id: crypto.randomUUID(),
+      id: generateId(),
       type: getWidgetType(domain),
       x: 100 + Math.random() * 200,
       y: 100 + Math.random() * 200,

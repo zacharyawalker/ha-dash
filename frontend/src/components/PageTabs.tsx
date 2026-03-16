@@ -10,6 +10,7 @@ export default function PageTabs() {
   const [editName, setEditName] = useState('');
   const [settingsIndex, setSettingsIndex] = useState<number | null>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
+  const gearRef = useRef<HTMLButtonElement>(null);
 
   // Close settings popover on outside click
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function PageTabs() {
           {/* Page settings gear for active page */}
           <div className="relative">
             <button
+              ref={gearRef}
               onClick={() => setSettingsIndex(settingsIndex === activePage ? null : activePage)}
               className="p-1.5 rounded-lg transition-colors hover:opacity-80"
               style={{ color: 'var(--color-text-tertiary)' }}
@@ -113,8 +115,9 @@ export default function PageTabs() {
             {settingsIndex != null && (
               <div
                 ref={settingsRef}
-                className="absolute top-full left-0 mt-1 w-64 rounded-xl shadow-xl z-50 p-3 flex flex-col gap-3"
+                className="absolute top-full left-0 mt-1 w-64 rounded-xl shadow-xl p-3 flex flex-col gap-3"
                 style={{
+                  zIndex: 9999,
                   background: 'var(--color-surface-primary)',
                   border: '1px solid var(--color-border-primary)',
                 }}

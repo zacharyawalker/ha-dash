@@ -86,17 +86,17 @@ export default function App() {
       <div className="flex flex-col h-screen">
         <ConnectionBanner />
         <div style={{
-          transition: 'transform 0.3s ease, opacity 0.3s ease',
-          transform: toolbarVisible ? 'translateY(0)' : 'translateY(-100%)',
+          transition: 'opacity 0.3s ease, max-height 0.3s ease',
+          maxHeight: toolbarVisible ? '200px' : '0px',
           opacity: toolbarVisible ? 1 : 0,
-          overflow: 'visible',
+          overflow: toolbarVisible ? 'visible' : 'hidden',
           position: 'relative',
           zIndex: 40,
         }}>
           <Toolbar onDashboardClick={() => setShowSwitcher(true)} />
           <PageTabs />
         </div>
-        <div className="flex flex-1 overflow-hidden" style={{ marginTop: toolbarVisible ? 0 : '-88px', transition: 'margin-top 0.3s ease' }}>
+        <div className="flex flex-1 overflow-hidden">
           <WidgetPalette />
           <Canvas />
           {mode === 'edit' && selectedWidgetId && <WidgetConfigPanel />}

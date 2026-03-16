@@ -3,11 +3,13 @@ import Icon from '@mdi/react';
 import { mdiChevronDown, mdiChevronUp, mdiMagnify } from '@mdi/js';
 import { widgetDefinitions } from './widgets/WidgetRegistry';
 import { useDashboardStore } from '../store/dashboardStore';
+import { generateId } from '../utils/id';
 
 const CATEGORIES = [
   { key: 'control', label: 'Control', color: '#4a9eff' },
   { key: 'climate', label: 'Climate', color: '#ef4444' },
   { key: 'display', label: 'Display', color: '#22c55e' },
+  { key: 'automation', label: 'Automation', color: '#f97316' },
   { key: 'layout', label: 'Layout', color: '#f59e0b' },
   { key: 'media', label: 'Media', color: '#a855f7' },
 ];
@@ -35,7 +37,7 @@ export default function WidgetPalette() {
   const handleAdd = (type: string) => {
     const def = widgetDefinitions.find((d) => d.type === type);
     addWidget({
-      id: crypto.randomUUID(),
+      id: generateId(),
       type,
       x: 100 + Math.random() * 300,
       y: 100 + Math.random() * 300,
