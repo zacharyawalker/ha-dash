@@ -3,7 +3,6 @@ description: "Free-form drag-and-drop dashboard for Home Assistant with 50+ widg
 version: "2.1.0"
 slug: "ha-dash"
 url: "https://github.com/zacharyawalker/ha-dash"
-image: "ghcr.io/zacharyawalker/ha-dash-{arch}"
 
 arch:
   - amd64
