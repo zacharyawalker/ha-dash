@@ -14,6 +14,8 @@ import PageSidebar from './components/PageSidebar';
 import WelcomeOverlay from './components/WelcomeOverlay';
 import QuickSearch from './components/QuickSearch';
 import WidgetPalette from './components/WidgetPalette';
+import LicenseSettings from './components/LicenseSettings';
+import { useLicenseStore } from './store/licenseStore';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -29,6 +31,8 @@ export default function App() {
   const [showSwitcher, setShowSwitcher] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem('ha-dash-welcomed'));
+  const [showLicense, setShowLicense] = useState(false);
+  const fetchLicenseStatus = useLicenseStore((s) => s.fetchStatus);
 
   useKeyboardShortcuts();
   useTouchOptimization();
@@ -53,7 +57,8 @@ export default function App() {
 
   useEffect(() => {
     load();
-  }, [load]);
+    fetchLicenseStatus();
+  }, [load, fetchLicenseStatus]);
 
   if (loading) {
     return (
@@ -93,7 +98,7 @@ export default function App() {
           position: 'relative',
           zIndex: 40,
         }}>
-          <Toolbar onDashboardClick={() => setShowSwitcher(true)} />
+          <Toolbar onDashboardClick={() => setShowSwitcher(true)} onLicenseClick={() => setShowLicense(true)} />
           <PageTabs />
         </div>
         <div className="flex flex-1 overflow-hidden">
@@ -111,6 +116,7 @@ export default function App() {
         {showWelcome && (
           <WelcomeOverlay onDismiss={() => { setShowWelcome(false); localStorage.setItem('ha-dash-welcomed', '1'); }} />
         )}
+        <LicenseSettings open={showLicense} onClose={() => setShowLicense(false)} />
         <ToastContainer />
       </div>
     </ErrorBoundary>

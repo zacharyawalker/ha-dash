@@ -6,6 +6,7 @@ from flask import Flask, send_from_directory, request
 from api.ha_proxy import ha_proxy_bp
 from api.dashboards import dashboards_bp
 from api.ws_relay import init_websocket
+from api.licensing import licensing_bp, init_license_from_config
 
 # Configure logging
 logging.basicConfig(
@@ -19,6 +20,7 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 
 app.register_blueprint(ha_proxy_bp, url_prefix="/api/ha")
 app.register_blueprint(dashboards_bp, url_prefix="/api/dashboards")
+app.register_blueprint(licensing_bp, url_prefix="/api/license")
 
 # Initialize WebSocket relay
 sock = init_websocket(app)
@@ -40,6 +42,9 @@ def serve_frontend(path):
         return send_from_directory(FRONTEND_DIR, path)
     return send_from_directory(FRONTEND_DIR, "index.html")
 
+
+# Initialize license on startup
+init_license_from_config()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8099))

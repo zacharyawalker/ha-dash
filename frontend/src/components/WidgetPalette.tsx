@@ -3,7 +3,9 @@ import Icon from '@mdi/react';
 import { mdiChevronDown, mdiChevronUp, mdiMagnify } from '@mdi/js';
 import { widgetDefinitions } from './widgets/WidgetRegistry';
 import { useDashboardStore } from '../store/dashboardStore';
+import { useLicenseStore } from '../store/licenseStore';
 import { generateId } from '../utils/id';
+import { ProBadge } from './ProBadge';
 
 const CATEGORIES = [
   { key: 'control', label: 'Control', color: '#4a9eff' },
@@ -25,7 +27,10 @@ export default function WidgetPalette() {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({ control: true, display: true });
   const [search, setSearch] = useState('');
 
+  const { isWidgetAllowed, isFeatureAllowed } = useLicenseStore();
+
   if (mode !== 'edit') return null;
+  if (!isFeatureAllowed('widget_palette')) return null;
 
   const filtered = search
     ? widgetDefinitions.filter((d) =>
@@ -95,12 +100,16 @@ export default function WidgetPalette() {
                   {items.map((def) => (
                     <button
                       key={def.type}
-                      onClick={() => handleAdd(def.type)}
+                      onClick={() => isWidgetAllowed(def.type) && handleAdd(def.type)}
                       className="flex items-center gap-1.5 w-full px-2 py-1 text-xs rounded hover:opacity-80 transition-opacity text-left"
-                      style={{ color: 'var(--color-text-secondary)' }}
+                      style={{
+                        color: isWidgetAllowed(def.type) ? 'var(--color-text-secondary)' : 'var(--color-text-tertiary)',
+                        opacity: isWidgetAllowed(def.type) ? 1 : 0.6,
+                      }}
                     >
                       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: color }} />
-                      {def.label}
+                      <span className="flex-1">{def.label}</span>
+                      {!isWidgetAllowed(def.type) && <ProBadge />}
                     </button>
                   ))}
                 </div>

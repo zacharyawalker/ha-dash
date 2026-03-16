@@ -11,6 +11,10 @@ export DASHBOARDS_DIR="/data/dashboards"
 export HA_URL="http://supervisor/core"
 export FLASK_ENV="production"
 
+# License key from add-on config (optional)
+LICENSE_KEY=$(bashio::config 'license_key' 2>/dev/null || echo "")
+export LICENSE_KEY
+
 # SUPERVISOR_TOKEN is automatically injected by HA add-on system
 bashio::log.info "Ingress port: ${INGRESS_PORT}"
 bashio::log.info "Frontend: ${FRONTEND_DIR}"

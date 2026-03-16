@@ -49,7 +49,7 @@ function ConnectionBadge() {
   );
 }
 
-export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () => void } = {}) {
+export default function Toolbar({ onDashboardClick, onLicenseClick }: { onDashboardClick?: () => void; onLicenseClick?: () => void } = {}) {
   const { mode, setMode, addWidget, save, dashboard, undo, redo, canUndo, canRedo, gridEnabled, setGridEnabled, autoArrange, theme, setTheme, activePage } = useDashboardStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [addStep, setAddStep] = useState<'type' | 'entity' | 'templates' | null>(null);
@@ -370,6 +370,18 @@ export default function Toolbar({ onDashboardClick }: { onDashboardClick?: () =>
       </div>
 
       <div className="flex items-center gap-2">
+        {/* License/tier badge */}
+        {onLicenseClick && (
+          <button
+            onClick={onLicenseClick}
+            className="px-2 py-1 text-xs font-semibold rounded-lg transition-colors"
+            style={{ background: '#f59e0b15', color: '#f59e0b', border: '1px solid #f59e0b30' }}
+            title="License settings"
+          >
+            ★ Pro
+          </button>
+        )}
+
         {/* Theme toggle */}
         <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}

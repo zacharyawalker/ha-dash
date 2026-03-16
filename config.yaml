@@ -38,6 +38,8 @@ map:
 
 options:
   log_level: "info"
+  license_key: ""
 
 schema:
   log_level: "list(debug|info|warning|error)"
+  license_key: "str?"
