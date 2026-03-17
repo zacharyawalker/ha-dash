@@ -4,6 +4,10 @@ const BASE = (() => {
   return `${path}/api`;
 })();
 
+// Import entity store at module level to avoid dynamic import issues
+let _entityStoreModule: typeof import('../store/entityStore') | null = null;
+import('../store/entityStore').then(m => { _entityStoreModule = m; });
+
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(`${BASE}${url}`, {
     ...init,
@@ -36,16 +40,19 @@ export async function callService(domain: string, service: string, data: Record<
 
   // After a service call, poll for updated state since WebSocket may not deliver through ingress
   const entityId = data.entity_id as string | undefined;
-  if (entityId) {
-    setTimeout(async () => {
-      try {
-        const { useEntityStore } = await import('../store/entityStore');
-        const updated = await fetchJson<HaState>(`/ha/states/${entityId}`);
-        useEntityStore.getState()._updateEntity(entityId, updated);
-      } catch {
-        // Silent fallback — WebSocket may deliver it instead
-      }
-    }, 500);
+  if (entityId && _entityStoreModule) {
+    const store = _entityStoreModule.useEntityStore;
+    // Poll at 500ms and 1500ms to catch the update
+    for (const delay of [500, 1500]) {
+      setTimeout(async () => {
+        try {
+          const updated = await fetchJson<HaState>(`/ha/states/${entityId}`);
+          store.getState()._updateEntity(entityId, updated);
+        } catch (e) {
+          console.warn('[callService] State poll failed:', e);
+        }
+      }, delay);
+    }
   }
 
   return result;
