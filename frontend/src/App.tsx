@@ -68,13 +68,9 @@ export default function App() {
     // Secondary: WebSocket for live state updates
     wsManager.connect();
 
-    // Periodic refresh as fallback (every 30s)
-    const refreshInterval = setInterval(async () => {
-      const { initialized } = useEntityStore.getState();
-      if (!initialized) {
-        await loadEntities();
-      }
-    }, 30000);
+    // Periodic full refresh (every 15s) — ensures state stays current
+    // even when WebSocket through ingress is unreliable
+    const refreshInterval = setInterval(loadEntities, 15000);
 
     return () => {
       clearInterval(refreshInterval);
