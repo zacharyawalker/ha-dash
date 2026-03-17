@@ -24,11 +24,15 @@ HA_URL = os.environ.get("HA_URL", "http://supervisor/core")
 def _get_ws_url() -> str:
     """Derive the HA WebSocket URL from HA_URL."""
     url = HA_URL.rstrip("/")
+    # Inside add-on: http://supervisor/core → ws://supervisor/core/websocket
+    if "supervisor" in url:
+        ws_url = url.replace("http://", "ws://").replace("https://", "wss://")
+        return ws_url + "/websocket"
+    # External HA: use /api/websocket
     if url.startswith("https://"):
         return url.replace("https://", "wss://") + "/api/websocket"
     elif url.startswith("http://"):
         return url.replace("http://", "ws://") + "/api/websocket"
-    # Default for supervisor
     return "ws://supervisor/core/websocket"
 
 
