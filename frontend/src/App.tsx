@@ -16,6 +16,8 @@ import QuickSearch from './components/QuickSearch';
 import WidgetPalette from './components/WidgetPalette';
 import LicenseSettings from './components/LicenseSettings';
 import { useLicenseStore } from './store/licenseStore';
+import { useEntityStore } from './store/entityStore';
+import { getStates } from './api/client';
 import ConnectionBanner from './components/ConnectionBanner';
 import StatusBar from './components/StatusBar';
 import ToastContainer from './components/ToastContainer';
@@ -52,7 +54,26 @@ export default function App() {
 
   useEffect(() => {
     wsManager.connect();
-    return () => wsManager.disconnect();
+
+    // REST fallback: if WebSocket doesn't deliver entities within 5s, load via REST
+    const fallbackTimer = setTimeout(async () => {
+      const { initialized } = useEntityStore.getState();
+      if (!initialized) {
+        console.warn('[App] WebSocket entities not loaded after 5s, falling back to REST API');
+        try {
+          const states = await getStates();
+          useEntityStore.getState()._setEntities(states);
+          console.log(`[App] REST fallback loaded ${states.length} entities`);
+        } catch (e) {
+          console.error('[App] REST fallback also failed:', e);
+        }
+      }
+    }, 5000);
+
+    return () => {
+      clearTimeout(fallbackTimer);
+      wsManager.disconnect();
+    };
   }, []);
 
   useEffect(() => {
