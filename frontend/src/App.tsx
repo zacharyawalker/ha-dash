@@ -53,25 +53,31 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Primary: load entities via REST API (reliable through ingress)
+    const loadEntities = async () => {
+      try {
+        const states = await getStates();
+        useEntityStore.getState()._setEntities(states);
+        console.log(`[App] Loaded ${states.length} entities via REST`);
+      } catch (e) {
+        console.error('[App] REST entity load failed:', e);
+      }
+    };
+    loadEntities();
+
+    // Secondary: WebSocket for live state updates
     wsManager.connect();
 
-    // REST fallback: if WebSocket doesn't deliver entities within 5s, load via REST
-    const fallbackTimer = setTimeout(async () => {
+    // Periodic refresh as fallback (every 30s)
+    const refreshInterval = setInterval(async () => {
       const { initialized } = useEntityStore.getState();
       if (!initialized) {
-        console.warn('[App] WebSocket entities not loaded after 5s, falling back to REST API');
-        try {
-          const states = await getStates();
-          useEntityStore.getState()._setEntities(states);
-          console.log(`[App] REST fallback loaded ${states.length} entities`);
-        } catch (e) {
-          console.error('[App] REST fallback also failed:', e);
-        }
+        await loadEntities();
       }
-    }, 5000);
+    }, 30000);
 
     return () => {
-      clearTimeout(fallbackTimer);
+      clearInterval(refreshInterval);
       wsManager.disconnect();
     };
   }, []);
