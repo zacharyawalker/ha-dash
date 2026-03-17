@@ -143,7 +143,8 @@ export default function Toolbar({ onDashboardClick, onLicenseClick }: { onDashbo
                   className="absolute top-full left-0 mt-1 w-64 rounded-lg shadow-xl max-h-[70vh] overflow-y-auto"
                   style={{ zIndex: 9999, background: 'var(--color-surface-tertiary)', border: '1px solid var(--color-border-secondary)' }}
                 >
-                  {(addStep === 'type' || addStep === 'templates') && (
+                  {/* Always show tabs unless we're in entity picker */}
+                  {(addStep === 'type' || addStep === 'templates' || addStep === null) && (
                     <div className="flex gap-1 px-3 py-1.5" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
                       <button
                         onClick={() => setAddStep('type')}
@@ -191,7 +192,7 @@ export default function Toolbar({ onDashboardClick, onLicenseClick }: { onDashbo
                     </div>
                   )}
 
-                  {addStep === 'type' && (
+                  {( addStep === 'type' || addStep === null ) && (
                     <div className="px-3 py-2" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
                       <input
                         type="text"
@@ -205,7 +206,7 @@ export default function Toolbar({ onDashboardClick, onLicenseClick }: { onDashbo
                     </div>
                   )}
 
-                  {addStep === 'type' && !search && (
+                  {( addStep === 'type' || addStep === null ) && !search && (
                     <div className="flex gap-1 px-3 py-1.5 flex-wrap" style={{ borderBottom: '1px solid var(--color-border-primary)' }}>
                       {[null, 'control', 'climate', 'display', 'layout'].map((cat) => (
                         <button
@@ -223,7 +224,7 @@ export default function Toolbar({ onDashboardClick, onLicenseClick }: { onDashbo
                     </div>
                   )}
 
-                  {addStep === 'type' &&
+                  {(addStep === 'type' || addStep === null) &&
                     widgetDefinitions
                     .filter((def) => {
                       if (search) return def.label.toLowerCase().includes(search.toLowerCase()) || def.category?.toLowerCase().includes(search.toLowerCase());
