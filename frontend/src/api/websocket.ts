@@ -47,19 +47,7 @@ class WebSocketManager {
   /** Derive WebSocket URL from current page location */
   private getWsUrl(): string {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // Derive base path from script src (reliable through ingress)
-    const scripts = document.querySelectorAll('script[src*="index-"]');
-    for (const s of scripts) {
-      const src = (s as HTMLScriptElement).src;
-      const assetsIdx = src.indexOf('/assets/');
-      if (assetsIdx > 0) {
-        const basePath = new URL(src).pathname.substring(0, assetsIdx);
-        return `${protocol}//${window.location.host}${basePath}/api/ws`;
-      }
-    }
-    // Fallback
-    const base = window.location.pathname.replace(/\/+$/, '');
-    return `${protocol}//${window.location.host}${base}/api/ws`;
+    return `${protocol}//${window.location.host}/api/ws`;
   }
 
   /** Start the WebSocket connection */

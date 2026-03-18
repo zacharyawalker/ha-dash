@@ -1,25 +1,9 @@
 /** 
  * Derive API base URL.
- * In HA ingress: the page loads from /api/hassio_ingress/TOKEN/ or similar.
- * Standalone: loads from / or /some-path/.
- * We find the base by looking at where our own script loaded from.
+ * The ingress iframe's document URL contains the correct base path.
+ * document.baseURI or the <base> tag gives us the right origin.
  */
-const BASE = (() => {
-  // Try to find our script's origin path
-  const scripts = document.querySelectorAll('script[src*="index-"]');
-  for (const s of scripts) {
-    const src = (s as HTMLScriptElement).src;
-    // src = https://host/api/hassio_ingress/TOKEN/assets/index-XXX.js
-    const assetsIdx = src.indexOf('/assets/');
-    if (assetsIdx > 0) {
-      const basePath = new URL(src).pathname.substring(0, assetsIdx);
-      return `${basePath}/api`;
-    }
-  }
-  // Fallback: use current page path
-  const path = window.location.pathname.replace(/\/+$/, '');
-  return `${path}/api`;
-})();
+const BASE = '/api';
 
 // Import entity store at module level to avoid dynamic import issues
 let _entityStoreModule: typeof import('../store/entityStore') | null = null;
