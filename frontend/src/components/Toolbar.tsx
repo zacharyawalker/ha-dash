@@ -24,22 +24,12 @@ import { WIDGET_TEMPLATES, instantiateTemplate } from '../utils/widgetTemplates'
 
 /** Connection status indicator */
 function ConnectionBadge() {
-  const connectionStatus = useEntityStore((s) => s.connectionStatus);
-  const haConnected = useEntityStore((s) => s.haConnected);
+  const initialized = useEntityStore((s) => s.initialized);
+  const entityCount = useEntityStore((s) => Object.keys(s.entities).length);
 
-  const color =
-    connectionStatus === 'connected' && haConnected
-      ? 'var(--color-success)'
-      : connectionStatus === 'connecting'
-        ? 'var(--color-warning)'
-        : 'var(--color-error)';
-
-  const label =
-    connectionStatus === 'connected' && haConnected
-      ? 'Connected'
-      : connectionStatus === 'connecting'
-        ? 'Connecting...'
-        : 'Disconnected';
+  // Show connected as soon as entities are loaded (via REST or WS)
+  const color = initialized ? 'var(--color-success)' : 'var(--color-warning)';
+  const label = initialized ? `Connected (${entityCount})` : 'Loading...';
 
   return (
     <div className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--color-text-secondary)' }} title={label}>

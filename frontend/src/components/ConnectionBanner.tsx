@@ -8,10 +8,12 @@ import { motion, AnimatePresence } from 'framer-motion';
  * Auto-dismisses when reconnected.
  */
 export default function ConnectionBanner() {
-  const status = useEntityStore((s) => s.connectionStatus);
+  const initialized = useEntityStore((s) => s.initialized);
   const haConnected = useEntityStore((s) => s.haConnected);
 
-  const showBanner = status === 'disconnected' || status === 'error' || !haConnected;
+  // Only show banner if entities never loaded (REST failed too)
+  // Don't show for WebSocket flapping — REST polling handles state updates
+  const showBanner = !initialized && !haConnected;
 
   return (
     <AnimatePresence>
