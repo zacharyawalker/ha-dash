@@ -49,27 +49,47 @@ export async function getState(entityId: string) {
   return fetchJson<HaState>(`/ha/states/${entityId}`);
 }
 
+/** Toggle service names that flip on/off state */
+const TOGGLE_SERVICES = new Set(['toggle', 'turn_on', 'turn_off']);
+
 export async function callService(domain: string, service: string, data: Record<string, unknown>, returnResponse = false) {
+  const entityId = data.entity_id as string | undefined;
+
+  // Optimistic update: flip state instantly in the UI
+  if (entityId && _entityStoreModule && TOGGLE_SERVICES.has(service)) {
+    const store = _entityStoreModule.useEntityStore;
+    const current = store.getState().entities[entityId];
+    if (current) {
+      let optimisticState: string;
+      if (service === 'turn_on') optimisticState = 'on';
+      else if (service === 'turn_off') optimisticState = 'off';
+      else optimisticState = current.state === 'on' ? 'off' : 'on'; // toggle
+
+      store.getState()._updateEntity(entityId, {
+        ...current,
+        state: optimisticState,
+        last_changed: new Date().toISOString(),
+        last_updated: new Date().toISOString(),
+      });
+    }
+  }
+
   const result = await fetchJson<unknown>(`/ha/services/${domain}/${service}${returnResponse ? '?return_response=true' : ''}`, {
     method: 'POST',
     body: JSON.stringify(data),
   });
 
-  // After a service call, poll for updated state since WebSocket may not deliver through ingress
-  const entityId = data.entity_id as string | undefined;
+  // Confirm with real state after a short delay
   if (entityId && _entityStoreModule) {
     const store = _entityStoreModule.useEntityStore;
-    // Poll at 500ms and 1500ms to catch the update
-    for (const delay of [500, 1500]) {
-      setTimeout(async () => {
-        try {
-          const updated = await fetchJson<HaState>(`/ha/states/${entityId}`);
-          store.getState()._updateEntity(entityId, updated);
-        } catch (e) {
-          console.warn('[callService] State poll failed:', e);
-        }
-      }, delay);
-    }
+    setTimeout(async () => {
+      try {
+        const updated = await fetchJson<HaState>(`/ha/states/${entityId}`);
+        store.getState()._updateEntity(entityId, updated);
+      } catch (e) {
+        console.warn('[callService] State confirm failed:', e);
+      }
+    }, 1000);
   }
 
   return result;
