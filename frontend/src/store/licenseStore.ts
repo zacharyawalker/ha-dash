@@ -42,8 +42,17 @@ const FREE_LIMITS: LicenseLimits = {
   widget_palette: false,
 };
 
-/** Derive API base from current page location */
+/** Derive API base from script src (reliable through HA ingress) */
 const API_BASE = (() => {
+  const scripts = document.querySelectorAll('script[src*="index-"]');
+  for (const s of scripts) {
+    const src = (s as HTMLScriptElement).src;
+    const assetsIdx = src.indexOf('/assets/');
+    if (assetsIdx > 0) {
+      const basePath = new URL(src).pathname.substring(0, assetsIdx);
+      return `${basePath}/api`;
+    }
+  }
   const path = window.location.pathname.replace(/\/+$/, '');
   return `${path}/api`;
 })();
