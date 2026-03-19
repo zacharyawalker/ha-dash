@@ -2,23 +2,27 @@ import { useState, useCallback } from 'react';
 import { useHaEntity } from '../../hooks/useHaEntities';
 import { callService } from '../../api/client';
 import Icon from '@mdi/react';
-import { mdiSprinkler, mdiSprinklerFire, mdiStop, mdiPlay, mdiTimerSand } from '@mdi/js';
+import { mdiSprinkler, mdiSprinklerFire, mdiStop, mdiWater } from '@mdi/js';
 import { getIconByName } from '../../utils/haIcons';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { WidgetProps } from '../../types/widget';
 
+/** Duration preset buttons */
+const DURATIONS = [5, 15, 30];
+
 /**
- * Single irrigation zone control.
- * Toggle zone on/off with optional duration selection.
+ * Redesigned irrigation zone card.
+ * Visual states: Idle (gray), Running (blue/green with animation), Error (red)
+ * One-click duration buttons, animated water effect.
  */
 export default function IrrigationZone({ config, mode }: WidgetProps) {
   const { entity } = useHaEntity(config.entityId);
-  // Duration entity for future use
+  const { entity: timerEntity } = useHaEntity(config.timerEntityId as string | undefined);
   useHaEntity(config.durationEntityId as string | undefined);
   const customIcon = config.customIcon ? getIconByName(config.customIcon as string) : undefined;
-  const accentColor = (config.accentColor as string) || '#22c55e';
+  const accentColor = (config.accentColor as string) || '#3b82f6';
   const hideLabel = config.hideLabel as boolean;
-  const [duration, setDuration] = useState(10);
+  const [selectedDuration, setSelectedDuration] = useState(15);
 
   if (!entity) {
     return (
@@ -30,95 +34,163 @@ export default function IrrigationZone({ config, mode }: WidgetProps) {
   }
 
   const isOn = entity.state === 'on';
+  const isError = entity.state === 'unavailable';
   const label = String(config.label || entity.attributes?.friendly_name || 'Zone');
   const zoneNumber = entity.attributes?.zone as number | undefined;
 
-  const toggle = useCallback(async () => {
+  // Timer remaining
+  const remaining = timerEntity?.attributes?.remaining as string | undefined;
+  const timerActive = timerEntity?.state === 'active';
+
+  const stateColor = isError ? '#ef4444' : isOn ? accentColor : 'var(--color-text-tertiary)';
+
+  const startZone = useCallback(async (minutes: number) => {
     if (mode === 'edit' || !config.entityId) return;
     const entityId = config.entityId as string;
     const domain = entityId.split('.')[0];
     try {
-      if (isOn) {
-        await callService(domain, 'turn_off', { entity_id: entityId });
-      } else {
-        await callService(domain, 'turn_on', { entity_id: entityId });
+      // Set duration if entity exists
+      if (config.durationEntityId) {
+        await callService('input_number', 'set_value', {
+          entity_id: config.durationEntityId as string,
+          value: minutes,
+        });
       }
+      await callService(domain, 'turn_on', { entity_id: entityId });
     } catch (e) {
       console.error('[IrrigationZone]', e);
     }
-  }, [config.entityId, mode, isOn]);
+  }, [config.entityId, config.durationEntityId, mode]);
+
+  const stopZone = useCallback(async () => {
+    if (mode === 'edit' || !config.entityId) return;
+    const entityId = config.entityId as string;
+    const domain = entityId.split('.')[0];
+    try {
+      await callService(domain, 'turn_off', { entity_id: entityId });
+    } catch (e) {
+      console.error('[IrrigationZone]', e);
+    }
+  }, [config.entityId, mode]);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full rounded-card gap-2 p-3"
+    <div className="flex flex-col w-full h-full rounded-card overflow-hidden"
       style={{
-        background: isOn ? `${accentColor}15` : 'var(--color-surface-secondary)',
-        border: `1px solid ${isOn ? accentColor + '40' : 'transparent'}`,
+        background: isOn ? `${accentColor}08` : isError ? '#ef444408' : 'var(--color-surface-secondary)',
+        border: `2px solid ${isOn ? accentColor + '40' : isError ? '#ef444440' : 'transparent'}`,
       }}>
 
-      {/* Zone icon */}
-      <motion.div
-        animate={isOn ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
-        transition={{ duration: 1.5, repeat: isOn ? Infinity : 0 }}
-      >
-        <Icon
-          path={customIcon || (isOn ? mdiSprinklerFire : mdiSprinkler)}
-          size={1.5}
-          color={isOn ? accentColor : 'var(--color-text-tertiary)'}
-        />
-      </motion.div>
-
-      {/* Label */}
-      {!hideLabel && (
-        <span className="text-xs font-semibold text-center" style={{ color: 'var(--color-text-primary)' }}>
-          {label}
+      {/* Zone header */}
+      <div className="flex items-center justify-between px-3 pt-3 pb-1">
+        <div className="flex items-center gap-2">
           {zoneNumber != null && (
-            <span className="ml-1 text-xs" style={{ color: 'var(--color-text-tertiary)' }}>#{zoneNumber}</span>
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+              style={{ background: `${stateColor}20`, color: stateColor }}>
+              {zoneNumber}
+            </div>
           )}
-        </span>
-      )}
-
-      {/* Status */}
-      <span className="text-xs font-bold" style={{ color: isOn ? accentColor : 'var(--color-text-tertiary)' }}>
-        {isOn ? '● Running' : '○ Off'}
-      </span>
-
-      {/* Duration selector (only when off) */}
-      {!isOn && (
-        <div className="flex items-center gap-1">
-          <Icon path={mdiTimerSand} size={0.4} color="var(--color-text-tertiary)" />
-          <select
-            value={duration}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            disabled={mode === 'edit'}
-            className="text-xs px-1 py-0.5 rounded outline-none"
-            style={{
-              background: 'var(--color-surface-tertiary)',
-              color: 'var(--color-text-primary)',
-              border: '1px solid var(--color-border-primary)',
-            }}
-          >
-            {[5, 10, 15, 20, 30, 45, 60].map((m) => (
-              <option key={m} value={m}>{m} min</option>
-            ))}
-          </select>
+          {!hideLabel && (
+            <span className="text-sm font-semibold" style={{ color: 'var(--color-text-primary)' }}>{label}</span>
+          )}
         </div>
-      )}
+        <div className="flex items-center gap-1">
+          {isOn && (
+            <motion.div
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              <Icon path={mdiWater} size={0.5} color={accentColor} />
+            </motion.div>
+          )}
+          <div className="w-2 h-2 rounded-full" style={{ background: stateColor }} />
+        </div>
+      </div>
 
-      {/* Toggle button */}
-      <motion.button
-        whileTap={{ scale: 0.9 }}
-        onClick={toggle}
-        disabled={mode === 'edit'}
-        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium"
-        style={{
-          background: isOn ? '#ef444420' : `${accentColor}20`,
-          color: isOn ? '#ef4444' : accentColor,
-          cursor: mode === 'edit' ? 'grab' : 'pointer',
-        }}
-      >
-        <Icon path={isOn ? mdiStop : mdiPlay} size={0.5} />
-        {isOn ? 'Stop' : 'Start'}
-      </motion.button>
+      {/* Icon + Status */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-1 px-3">
+        <motion.div
+          animate={isOn ? { rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] } : {}}
+          transition={{ duration: 2, repeat: isOn ? Infinity : 0 }}
+        >
+          <Icon
+            path={customIcon || (isOn ? mdiSprinklerFire : mdiSprinkler)}
+            size={1.8}
+            color={stateColor}
+          />
+        </motion.div>
+
+        {/* Animated water drops when running */}
+        <AnimatePresence>
+          {isOn && (
+            <motion.div
+              initial={{ opacity: 0, y: -5 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="flex gap-1"
+            >
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 1, delay: i * 0.2, repeat: Infinity }}
+                >
+                  <Icon path={mdiWater} size={0.3} color={accentColor} />
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Timer countdown */}
+        {timerActive && remaining && (
+          <span className="text-lg font-mono font-bold tabular-nums" style={{ color: accentColor }}>
+            {remaining}
+          </span>
+        )}
+
+        <span className="text-xs font-semibold"
+          style={{ color: isOn ? accentColor : isError ? '#ef4444' : 'var(--color-text-tertiary)' }}>
+          {isError ? 'Unavailable' : isOn ? 'Running' : 'Idle'}
+        </span>
+      </div>
+
+      {/* Controls */}
+      <div className="px-2 pb-2">
+        {isOn ? (
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={stopZone}
+            disabled={mode === 'edit'}
+            className="w-full flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold"
+            style={{ background: '#ef4444', color: 'white', cursor: mode === 'edit' ? 'grab' : 'pointer' }}
+          >
+            <Icon path={mdiStop} size={0.5} />
+            STOP
+          </motion.button>
+        ) : (
+          <div className="flex gap-1">
+            {DURATIONS.map((min) => (
+              <motion.button
+                key={min}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => startZone(min)}
+                disabled={mode === 'edit' || isError}
+                className="flex-1 flex items-center justify-center gap-0.5 py-2 rounded-lg text-xs font-semibold transition-all"
+                style={{
+                  background: selectedDuration === min ? `${accentColor}25` : 'var(--color-surface-tertiary)',
+                  color: selectedDuration === min ? accentColor : 'var(--color-text-secondary)',
+                  border: `1px solid ${selectedDuration === min ? accentColor + '40' : 'transparent'}`,
+                  cursor: mode === 'edit' || isError ? 'not-allowed' : 'pointer',
+                  opacity: isError ? 0.4 : 1,
+                }}
+                onMouseEnter={() => setSelectedDuration(min)}
+              >
+                {min}m
+              </motion.button>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
