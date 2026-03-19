@@ -53,6 +53,9 @@ import DateTimeWidget from './DateTimeWidget';
 import TodoList from './TodoList';
 import VacuumControl from './VacuumControl';
 import StatusBadge from './StatusBadge';
+import IrrigationZone from './IrrigationZone';
+import IrrigationPanel from './IrrigationPanel';
+import IrrigationSchedule from './IrrigationSchedule';
 import EntityList from './EntityList';
 
 export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
@@ -104,6 +107,9 @@ export const widgetComponents: Record<string, ComponentType<WidgetProps>> = {
   'todo-list': TodoList,
   'vacuum-control': VacuumControl,
   'status-badge': StatusBadge,
+  'irrigation-zone': IrrigationZone,
+  'irrigation-panel': IrrigationPanel,
+  'irrigation-schedule': IrrigationSchedule,
 };
 
 export const widgetDefinitions: WidgetDefinition[] = [
@@ -500,6 +506,74 @@ export const widgetDefinitions: WidgetDefinition[] = [
       { key: 'entity6', label: 'Entity 6', type: 'entity' },
       { key: 'entity7', label: 'Entity 7', type: 'entity' },
       { key: 'entity8', label: 'Entity 8', type: 'entity' },
+    ],
+  },
+
+  // === Irrigation Zone ===
+  {
+    type: 'irrigation-zone',
+    label: 'Irrigation Zone',
+    icon: 'mdi:sprinkler',
+    category: 'control',
+    defaultWidth: 160,
+    defaultHeight: 220,
+    minWidth: 120,
+    minHeight: 180,
+    defaultConfig: { label: '' },
+    configFields: [
+      { key: 'entityId', label: 'Zone Entity', type: 'entity', domains: ['switch', 'valve'], required: true },
+      { key: 'durationEntityId', label: 'Duration Entity', type: 'entity', domain: 'input_number' },
+      { key: 'label', label: 'Label', type: 'text', placeholder: 'Auto from entity name' },
+    ],
+  },
+
+  // === Irrigation Panel ===
+  {
+    type: 'irrigation-panel',
+    label: 'Irrigation Panel',
+    icon: 'mdi:sprinkler',
+    category: 'control',
+    defaultWidth: 450,
+    defaultHeight: 300,
+    minWidth: 300,
+    minHeight: 200,
+    defaultConfig: { label: 'Irrigation' },
+    configFields: [
+      { key: 'label', label: 'Title', type: 'text' },
+      { key: 'zone1', label: 'Zone 1', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone2', label: 'Zone 2', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone3', label: 'Zone 3', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone4', label: 'Zone 4', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone5', label: 'Zone 5', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone6', label: 'Zone 6', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone7', label: 'Zone 7', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone8', label: 'Zone 8', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone9', label: 'Zone 9', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone10', label: 'Zone 10', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone11', label: 'Zone 11', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'zone12', label: 'Zone 12', type: 'entity', domains: ['switch', 'valve'] },
+      { key: 'rainSensorId', label: 'Rain Sensor', type: 'entity', domain: 'binary_sensor' },
+    ],
+  },
+
+  // === Irrigation Schedule ===
+  {
+    type: 'irrigation-schedule',
+    label: 'Irrigation Schedule',
+    icon: 'mdi:calendar-clock',
+    category: 'control',
+    defaultWidth: 280,
+    defaultHeight: 280,
+    minWidth: 220,
+    minHeight: 220,
+    defaultConfig: { label: 'Schedule' },
+    configFields: [
+      { key: 'entityId', label: 'Schedule Automation', type: 'entity', domain: 'automation', required: true },
+      { key: 'runningEntityId', label: 'Running Indicator', type: 'entity', domain: 'input_boolean' },
+      { key: 'scheduleSelectId', label: 'Schedule Selector', type: 'entity', domain: 'input_select' },
+      { key: 'runAutomationId', label: 'Run Automation', type: 'entity', domain: 'automation' },
+      { key: 'lastRunEntityId', label: 'Last Run Entity', type: 'entity', domain: 'input_text' },
+      { key: 'label', label: 'Label', type: 'text' },
     ],
   },
 

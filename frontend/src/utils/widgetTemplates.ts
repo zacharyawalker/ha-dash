@@ -147,6 +147,19 @@ export const WIDGET_TEMPLATES: WidgetTemplate[] = [
       { type: 'person-tracker', x: 320, y: 240, width: 200, height: 200, config: { label: 'Family' } },
     ],
   },
+  {
+    name: 'Irrigation Control',
+    description: 'Multi-zone sprinkler panel + schedule + rain sensor',
+    icon: 'mdi:sprinkler',
+    category: 'room',
+    widgets: [
+      { type: 'section-header', x: 20, y: 20, width: 700, height: 50, config: { label: 'Irrigation Control', showLine: true, fontSize: 'large', accentColor: '#22c55e' } },
+      { type: 'irrigation-panel', x: 20, y: 90, width: 450, height: 350, config: { label: 'Sprinkler Zones' } },
+      { type: 'irrigation-schedule', x: 480, y: 90, width: 280, height: 280, config: { label: 'Schedule' } },
+      { type: 'sensor-display', x: 480, y: 380, width: 140, height: 140, config: { label: 'Rain Delay' } },
+      { type: 'binary-sensor', x: 630, y: 380, width: 130, height: 140, config: { label: 'Rain Sensor' } },
+    ],
+  },
 ];
 
 /**
