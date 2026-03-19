@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { WidgetProps } from '../../types/widget';
 
 /** Duration preset buttons */
-const DURATIONS = [5, 15, 30];
+const DURATIONS = [5, 15, 30, 60];
 
 /**
  * Redesigned irrigation zone card.
